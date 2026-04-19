@@ -58,10 +58,10 @@
   // Se lee automáticamente de la variable de entorno GITHUB_REPOSITORY en Actions.
   // Para GitHub Pages, el repo se infiere de window.location:
   const GITHUB_REPO = (() => {
-    const parts = window.location.pathname.split("/").filter(Boolean);
-    if (parts.length >= 2) return `${parts[0]}/${parts[1]}`;
-    // Fallback para desarrollo local — reemplazar con tu repo
-    return "TU_USUARIO/TU_REPO";
+    // GitHub Pages: ssanga.github.io/jira-triaje-agent → ssanga/jira-triaje-agent
+    const owner = window.location.hostname.split(".")[0];
+    const repo = window.location.pathname.split("/").filter(Boolean)[0];
+    return `${owner}/${repo}`;
   })();
   // ──────────────────────────────────────────────────────────────────────────
 
