@@ -151,7 +151,7 @@
       const resp = await fetch(url, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${GITHUB_PAT}`,
+          "Authorization": `token ${GITHUB_PAT}`,
           "Accept": "application/vnd.github+json",
           "Content-Type": "application/json",
         },
