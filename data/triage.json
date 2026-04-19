@@ -8,7 +8,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El cierre inesperado de sesión afecta la experiencia del usuario, pero no bloquea el acceso al sistema. La prioridad actual es adecuada.",
+    "reasoning": "El cierre inesperado de sesión afecta la experiencia del usuario y puede interrumpir flujos de trabajo, pero no bloquea completamente el uso del sistema.",
     "changed": false
   },
   {
@@ -20,7 +20,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El error en el cálculo de impuestos puede generar problemas legales y financieros significativos, justificando una prioridad alta.",
+    "reasoning": "El error en el cálculo de impuestos puede generar problemas legales y financieros significativos, especialmente al tratarse de informes anuales.",
     "changed": false
   },
   {
@@ -32,7 +32,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema de caracteres en los CSV afecta la legibilidad, pero no impide la funcionalidad principal del sistema. Es un problema molesto pero no crítico.",
+    "reasoning": "El problema afecta la legibilidad de los archivos exportados, pero no impide el uso de la funcionalidad principal del sistema.",
     "changed": true
   },
   {
@@ -44,7 +44,7 @@
     "current_priority_id": "5",
     "proposed_priority": "Lowest",
     "proposed_priority_id": "5",
-    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema. La prioridad actual es adecuada.",
+    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema, además de tener un impacto limitado a dispositivos móviles.",
     "changed": false
   },
   {
@@ -56,7 +56,7 @@
     "current_priority_id": "4",
     "proposed_priority": "Low",
     "proposed_priority_id": "4",
-    "reasoning": "El botón de exportación a PDF no funciona en un navegador específico, pero hay alternativas disponibles. La prioridad actual es adecuada.",
+    "reasoning": "El problema tiene un impacto bajo y una solución alternativa clara (usar otro navegador), por lo que no es urgente.",
     "changed": false
   },
   {
@@ -68,7 +68,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "La falta de notificaciones por email afecta la experiencia de onboarding y genera confusión, pero no bloquea el registro ni el uso del sistema.",
+    "reasoning": "Aunque no bloquea el registro, la falta de notificaciones afecta la experiencia de usuario y genera confusión, lo que puede impactar la percepción del servicio.",
     "changed": true
   },
   {
@@ -80,7 +80,7 @@
     "current_priority_id": "3",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El error al subir archivos grandes afecta a una funcionalidad secundaria y no bloquea el uso principal del sistema, pero genera fricción para ciertos usuarios.",
+    "reasoning": "El error afecta a una funcionalidad secundaria y no bloquea el uso general del sistema, pero genera fricción para usuarios que necesitan cargar archivos grandes.",
     "changed": false
   },
   {
@@ -104,7 +104,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El timeout en consultas de reporting afecta a análisis históricos, pero no bloquea el trabajo diario. La urgencia es moderada debido a la necesidad de informes trimestrales.",
+    "reasoning": "El problema afecta a una funcionalidad específica (reportes históricos) y tiene un impacto limitado en el trabajo diario, aunque es relevante para la dirección.",
     "changed": true
   },
   {
@@ -116,7 +116,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "La falta de sincronización con el CRM afecta la gestión comercial y acumula deuda de datos, lo que puede impactar en la operación del negocio si no se resuelve pronto.",
+    "reasoning": "La falta de sincronización con el CRM afecta la gestión de oportunidades y puede tener un impacto significativo en las operaciones comerciales si no se resuelve pronto.",
     "changed": false
   },
   {
@@ -152,7 +152,7 @@
     "current_priority_id": "1",
     "proposed_priority": "Highest",
     "proposed_priority_id": "1",
-    "reasoning": "El sistema está completamente inaccesible para todos los usuarios, lo que genera una pérdida total de operatividad y afecta directamente al negocio.",
+    "reasoning": "El sistema está completamente inoperativo para todos los usuarios, lo que genera una pérdida total de negocio y requiere atención inmediata.",
     "changed": false
   }
 ]
