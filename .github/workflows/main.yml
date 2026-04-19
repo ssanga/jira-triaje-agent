@@ -6,7 +6,8 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - 'decisions.json'   # evita bucle al borrar decisions.json
+      - 'decisions.json'      # lo gestiona apply.yml
+      - 'data/triage.json'    # evita bucle cuando el triage hace commit
   workflow_dispatch:
 
 jobs:
@@ -40,6 +41,8 @@ jobs:
         run: |
           git config user.email "triage-agent@noreply"
           git config user.name "Triage Agent"
+          git rm --cached decisions.json 2>/dev/null || true
+          rm -f decisions.json
           git add data/triage.json
           git diff --staged --quiet || git commit -m "chore: actualiza triage $(date +%Y-%m-%d-%H%M)"
           git push

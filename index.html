@@ -53,6 +53,8 @@
 <div id="app"><p class="empty">Cargando tickets...</p></div>
 
 <div class="footer" id="footer" style="display:none">
+  <button class="btn btn-reject" id="btnConfirmAll" onclick="confirmAll()" style="flex:none;padding:12px 20px">Confirmar todos</button>
+  <button class="btn btn-reject" id="btnRejectAll" onclick="rejectAll()" style="flex:none;padding:12px 20px">Descartar todos</button>
   <button class="btn-send" id="btnSend" disabled>Enviar decisiones a Jira</button>
   <span class="status" id="status"></span>
 </div>
@@ -121,6 +123,14 @@
     card.querySelector(".btn-approve").classList.toggle("active", action === "approve");
     card.querySelector(".btn-reject").classList.toggle("active", action === "reject");
     updateSendButton();
+  }
+
+  function confirmAll() {
+    changedTickets.forEach(t => decide(t.key, "approve"));
+  }
+
+  function rejectAll() {
+    changedTickets.forEach(t => decide(t.key, "reject"));
   }
 
   function updateSendButton() {

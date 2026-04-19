@@ -2,26 +2,36 @@
 
 Agente autónomo de triaje de incidencias Jira con GitHub Pages + GitHub Actions + GitHub Models.
 
-Analiza bugs abiertos con `gpt-4o`, propone cambios de prioridad, y permite a usuarios de negocio
-aprobar los cambios desde una web estática sin necesidad de acceso a Jira.
+Analiza bugs abiertos en lote con `gpt-4o`, propone cambios de prioridad, y permite a usuarios de negocio aprobar o descartar cada propuesta desde una web estática — sin acceso a Jira ni infraestructura adicional.
+
+---
 
 ## Arquitectura
 
 ```
-GitHub Actions (cron 8h/12h/16h L-V)
+GitHub Actions (cron 8h/12h/16h L-V o manual)
     ↓
-main.py → lee bugs de Jira → llama a GitHub Models (gpt-4o)
+main.py → lee TODOS los bugs del proyecto PT de Jira (paginado)
     ↓
-Escribe data/triage.json → commit automático
+src/ai.py → llama a GitHub Models (gpt-4o) en batches de 10 tickets por llamada
+    ↓
+Escribe data/triage.json → commit automático a main
     ↓
 GitHub Pages sirve index.html leyendo ese JSON
     ↓
-Usuario abre la web → aprueba/rechaza propuestas
+Usuario abre la web → introduce su GitHub Token → revisa propuestas
+→ Confirmar / Descartar (uno a uno, o "Confirmar todos" / "Descartar todos")
     ↓
-Click dispara repository_dispatch con Fine-grained PAT
+Botón "Enviar decisiones" → escribe decisions.json en el repo vía Contents API
     ↓
-apply.yml → apply.py → actualiza prioridades en Jira + comentario de trazabilidad
+apply.yml detecta el push de decisions.json
+    ↓
+src/apply.py → actualiza prioridades en Jira (PUT /rest/api/3/issue/{id})
+             → añade comentario de trazabilidad en cada ticket aprobado
+             → borra decisions.json → actualiza triage.json → commit
 ```
+
+---
 
 ## Configuración inicial
 
@@ -35,24 +45,9 @@ Ve a **Settings → Secrets and variables → Actions** y crea:
 | `JIRA_EMAIL` | Email de tu cuenta Atlassian |
 | `JIRA_TOKEN` | API Token generado en [id.atlassian.com](https://id.atlassian.com/manage-profile/security/api-tokens) |
 
-El `GITHUB_TOKEN` para GitHub Models lo provee automáticamente GitHub Actions.
+El `GITHUB_TOKEN` para GitHub Models lo provee automáticamente GitHub Actions — no hace falta configurarlo.
 
-### 2. Fine-grained PAT para la web
-
-Crea un token en **GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens**:
-
-- **Repository access:** solo este repo
-- **Permissions → Actions:** Read and Write
-- **Permissions → Contents:** Read-only
-- Todo lo demás: No access
-
-Pega el token en `index.html`, reemplazando `TU_PAT_AQUI`:
-
-```js
-const GITHUB_PAT = "github_pat_xxxxx...";
-```
-
-### 3. Habilitar GitHub Pages
+### 2. Habilitar GitHub Pages
 
 Ve a **Settings → Pages**:
 
@@ -61,9 +56,29 @@ Ve a **Settings → Pages**:
 
 La URL de la web será: `https://<usuario>.github.io/<repo>/`
 
-### 4. Primer triaje manual
+### 3. Primer triaje manual
 
-Ve a **Actions → Triage agent → Run workflow** para lanzar el primer análisis sin esperar al cron.
+Ve a **Actions → Triage y Deploy → Run workflow** para lanzar el primer análisis sin esperar al cron.
+
+### 4. GitHub Token para usar la web
+
+El usuario que revise los tickets necesita un **classic PAT** con scope `repo`:
+
+- GitHub → **Settings → Developer settings → Tokens (classic) → Generate new token**
+- Scope: `repo`
+- Se introduce directamente en el campo de la web al enviar — no se almacena en ningún sitio
+
+---
+
+## Uso de la web
+
+1. Abre `https://<usuario>.github.io/<repo>/`
+2. Introduce tu GitHub Token (classic, scope `repo`) en el campo superior
+3. Revisa las propuestas del agente — cada card muestra prioridad actual → propuesta y el razonamiento
+4. Usa **Confirmar** / **Dejar como está** por ticket, o los botones globales **Confirmar todos** / **Descartar todos**
+5. Pulsa **Enviar decisiones a Jira** — el pipeline aplica los cambios aprobados en ~1 minuto
+
+---
 
 ## Instalación local
 
@@ -75,19 +90,31 @@ cp .env.example .env    # rellenar con tus credenciales
 python main.py
 ```
 
+---
+
 ## Estructura del proyecto
 
 ```
-├── main.py                          # Agente de triaje (entry point)
-├── apply.py                         # Aplicar decisiones aprobadas (entry point)
+├── main.py                        # Entry point: triaje (Jira → IA → triage.json)
 ├── src/
-│   ├── jira.py                      # Cliente Jira REST API
-│   └── ai.py                        # Cliente GitHub Models (gpt-4o)
+│   ├── jira.py                    # Cliente Jira REST API (lectura, actualización, comentarios)
+│   ├── ai.py                      # Cliente GitHub Models — triaje en batches de 10
+│   └── apply.py                   # Entry point: aplica decisiones aprobadas en Jira
 ├── data/
-│   └── triage.json                  # Resultado del triaje (generado automáticamente)
+│   └── triage.json                # Resultado del triaje (generado automáticamente)
 ├── .github/workflows/
-│   ├── triage.yml                   # Cron de análisis
-│   └── apply.yml                    # Aplicar decisiones vía repository_dispatch
-├── index.html                       # UI web (GitHub Pages)
-└── .env.example                     # Variables de entorno de ejemplo
+│   ├── main.yml                   # Triage: cron 8h/12h/16h L-V + push + manual
+│   └── apply.yml                  # Apply: se activa cuando decisions.json llega al repo
+├── index.html                     # UI web servida por GitHub Pages
+├── requirements.txt
+└── .env.example                   # Variables de entorno de ejemplo
 ```
+
+---
+
+## Workflows
+
+| Workflow | Trigger | Qué hace |
+|----------|---------|----------|
+| `main.yml` | Cron / push a main / manual | Triaje completo: Jira → IA → commit triage.json |
+| `apply.yml` | Push de `decisions.json` | Aplica decisiones en Jira, borra decisions.json, commit |
