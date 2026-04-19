@@ -4,36 +4,36 @@
     "jira_url": "https://ssanga.atlassian.net/browse/PT-18",
     "id": "10505",
     "summary": "La sesión de usuario se cierra sola cada 10 minutos sin actividad",
-    "current_priority": "High",
-    "current_priority_id": "2",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El cierre inesperado de sesión afecta la experiencia del usuario y puede interrumpir flujos de trabajo, pero no bloquea completamente el uso del sistema.",
-    "changed": false
+    "reasoning": "El cierre inesperado de sesión afecta la experiencia de usuario y puede interrumpir flujos de trabajo, especialmente en sesiones prolongadas.",
+    "changed": true
   },
   {
     "key": "PT-15",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-15",
     "id": "10502",
     "summary": "Error de cálculo en el resumen de impuestos del informe anual",
-    "current_priority": "High",
-    "current_priority_id": "2",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El error en el cálculo de impuestos puede generar problemas legales y financieros significativos, especialmente al tratarse de informes anuales.",
-    "changed": false
+    "reasoning": "El error en el cálculo de impuestos puede generar problemas legales y financieros significativos, especialmente en informes anuales.",
+    "changed": true
   },
   {
     "key": "PT-11",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-11",
     "id": "10498",
     "summary": "El módulo de exportación genera ficheros CSV corruptos al incluir caracteres especiales",
-    "current_priority": "Medium",
-    "current_priority_id": "3",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema de caracteres especiales en la exportación a CSV afecta la legibilidad, pero no bloquea la funcionalidad principal del sistema.",
-    "changed": false
+    "reasoning": "El problema con caracteres especiales en exportaciones afecta la usabilidad, pero no bloquea flujos críticos.",
+    "changed": true
   },
   {
     "key": "PT-10",
@@ -42,81 +42,81 @@
     "summary": "Interfaz no responsive: menú de navegación se solapa en resoluciones móviles",
     "current_priority": "Lowest",
     "current_priority_id": "5",
-    "proposed_priority": "Lowest",
-    "proposed_priority_id": "5",
-    "reasoning": "El problema de diseño en dispositivos móviles es puramente estético y no afecta la funcionalidad del sistema.",
-    "changed": false
+    "proposed_priority": "Low",
+    "proposed_priority_id": "4",
+    "reasoning": "El problema es estético y solo afecta a dispositivos móviles, sin impacto funcional significativo.",
+    "changed": true
   },
   {
     "key": "PT-9",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-9",
     "id": "10425",
     "summary": "Botón \"Exportar a PDF\" no responde en el navegador Chrome versión 124",
-    "current_priority": "Low",
-    "current_priority_id": "4",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "Low",
     "proposed_priority_id": "4",
-    "reasoning": "El botón de exportación a PDF no funciona en un navegador específico, pero hay alternativas disponibles y no afecta flujos críticos.",
-    "changed": false
+    "reasoning": "El botón de exportación a PDF no funciona en un navegador específico, pero hay alternativas disponibles.",
+    "changed": true
   },
   {
     "key": "PT-8",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-8",
     "id": "10424",
     "summary": "Notificaciones por email no se envían a usuarios recién registrados",
-    "current_priority": "Medium",
-    "current_priority_id": "3",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "La falta de notificaciones por email afecta la experiencia de onboarding y genera confusión, pero no bloquea el registro ni el uso del sistema.",
-    "changed": false
+    "reasoning": "La falta de notificaciones por email afecta la experiencia de onboarding y genera confusión, aunque no bloquea el registro.",
+    "changed": true
   },
   {
     "key": "PT-7",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-7",
     "id": "10423",
     "summary": "Error 500 al intentar subir archivos de más de 10 MB",
-    "current_priority": "Medium",
-    "current_priority_id": "3",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El error al subir archivos grandes afecta a un subconjunto de usuarios y genera fricción, pero no bloquea flujos críticos.",
-    "changed": false
+    "reasoning": "El error al subir archivos grandes afecta a una funcionalidad secundaria, pero genera fricción y soporte adicional.",
+    "changed": true
   },
   {
     "key": "PT-6",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-6",
     "id": "10422",
     "summary": "Cálculo de descuentos incorrecto en el carrito de compra",
-    "current_priority": "High",
-    "current_priority_id": "2",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El cálculo incorrecto de descuentos impacta directamente en la confianza del cliente y puede generar pérdidas económicas, lo que lo hace prioritario.",
-    "changed": false
+    "reasoning": "El cálculo incorrecto de descuentos impacta directamente en la confianza del cliente y puede generar pérdidas económicas.",
+    "changed": true
   },
   {
     "key": "PT-5",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-5",
     "id": "10421",
     "summary": "Timeout en consultas de reporting para rangos de fechas superiores a 3 meses",
-    "current_priority": "High",
-    "current_priority_id": "2",
-    "proposed_priority": "High",
-    "proposed_priority_id": "2",
-    "reasoning": "El timeout en consultas de reporting afecta la generación de informes trimestrales necesarios para la dirección, lo que tiene un impacto significativo en la toma de decisiones.",
-    "changed": false
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
+    "proposed_priority": "Medium",
+    "proposed_priority_id": "3",
+    "reasoning": "El timeout en consultas de reporting afecta análisis históricos importantes, pero no bloquea operaciones diarias.",
+    "changed": true
   },
   {
     "key": "PT-4",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-4",
     "id": "10420",
     "summary": "Datos de clientes no se sincronizan con el CRM externo desde ayer",
-    "current_priority": "High",
-    "current_priority_id": "2",
-    "proposed_priority": "Highest",
-    "proposed_priority_id": "1",
-    "reasoning": "La falta de sincronización con el CRM afecta directamente la gestión de oportunidades comerciales, lo que puede tener un impacto crítico en el negocio si no se resuelve rápidamente.",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
+    "proposed_priority": "High",
+    "proposed_priority_id": "2",
+    "reasoning": "La falta de sincronización con el CRM afecta la gestión comercial y puede impactar en la generación de ingresos.",
     "changed": true
   },
   {
@@ -124,35 +124,35 @@
     "jira_url": "https://ssanga.atlassian.net/browse/PT-3",
     "id": "10419",
     "summary": "Panel de administración inaccesible para el rol \"manager\"",
-    "current_priority": "High",
-    "current_priority_id": "2",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas críticas, pero no impacta a todos los usuarios ni detiene completamente el negocio.",
-    "changed": false
+    "reasoning": "El problema bloquea la operativa diaria de los supervisores y afecta procesos de negocio en curso, pero no impacta a todos los usuarios ni tiene consecuencias económicas o legales inmediatas.",
+    "changed": true
   },
   {
     "key": "PT-2",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-2",
     "id": "10418",
     "summary": "Facturas generadas con importes incorrectos en el módulo de facturación",
-    "current_priority": "Highest",
-    "current_priority_id": "1",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "Highest",
     "proposed_priority_id": "1",
-    "reasoning": "El error tiene un impacto económico y legal directo, y requiere resolución inmediata antes del cierre del día para evitar mayores consecuencias.",
-    "changed": false
+    "reasoning": "El error en la facturación tiene un impacto económico y legal alto, y requiere resolución antes del cierre del día para evitar reclamaciones y problemas legales.",
+    "changed": true
   },
   {
     "key": "PT-1",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-1",
     "id": "10417",
     "summary": "Login completamente caído en producción – todos los usuarios bloqueados",
-    "current_priority": "Highest",
-    "current_priority_id": "1",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
     "proposed_priority": "Highest",
     "proposed_priority_id": "1",
-    "reasoning": "El sistema está completamente inaccesible para todos los usuarios, lo que genera una interrupción total del negocio y requiere atención inmediata.",
-    "changed": false
+    "reasoning": "El login está completamente caído en producción, afectando a todos los usuarios y generando pérdidas directas de negocio. Requiere atención inmediata.",
+    "changed": true
   }
 ]
