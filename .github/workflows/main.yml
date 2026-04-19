@@ -5,6 +5,8 @@ on:
     - cron: '0 8,12,16 * * 1-5'  # 8h, 12h y 16h lunes-viernes (UTC)
   push:
     branches: [main]
+    paths-ignore:
+      - 'decisions.json'   # evita bucle al borrar decisions.json
   workflow_dispatch:
 
 jobs:
@@ -41,32 +43,3 @@ jobs:
           git add data/triage.json
           git diff --staged --quiet || git commit -m "chore: actualiza triage $(date +%Y-%m-%d-%H%M)"
           git push
-
-  # ── 2. Publica la web con el PAT inyectado (nunca en el repo) ───────────────
-  deploy:
-    name: Deploy GitHub Pages
-    runs-on: ubuntu-latest
-    needs: triage
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Preparar archivos con PAT inyectado
-        run: |
-          mkdir -p _deploy/data
-          cp index.html _deploy/index.html
-          cp data/triage.json _deploy/data/triage.json
-          sed -i 's|TU_PAT_AQUI|${{ secrets.PAGES_PAT }}|g' _deploy/index.html
-
-      - name: Publicar en gh-pages
-        run: |
-          cd _deploy
-          git init
-          git config user.email "triage-agent@noreply"
-          git config user.name "Triage Agent"
-          git add .
-          git commit -m "deploy: pages $(date +%Y-%m-%d-%H%M)"
-          git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:gh-pages
