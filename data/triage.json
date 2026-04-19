@@ -8,7 +8,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El cierre inesperado de sesión afecta la experiencia del usuario y puede interrumpir flujos de trabajo, pero no bloquea completamente el uso del sistema.",
+    "reasoning": "El cierre inesperado de sesión afecta la experiencia del usuario, pero no bloquea el acceso al sistema. La prioridad sigue siendo alta debido al impacto generalizado.",
     "changed": false
   },
   {
@@ -20,7 +20,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El error en el cálculo de impuestos puede generar problemas legales y financieros significativos, especialmente al tratarse de informes anuales.",
+    "reasoning": "El error en el cálculo de impuestos puede generar problemas legales y financieros significativos, especialmente en informes anuales. La prioridad debe mantenerse alta.",
     "changed": false
   },
   {
@@ -32,7 +32,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema de caracteres especiales en la exportación a CSV afecta la usabilidad, pero no bloquea la funcionalidad principal del sistema.",
+    "reasoning": "El problema afecta la legibilidad de los archivos exportados, pero no impide la funcionalidad principal del sistema. Es un problema molesto pero no crítico.",
     "changed": true
   },
   {
@@ -44,7 +44,7 @@
     "current_priority_id": "5",
     "proposed_priority": "Lowest",
     "proposed_priority_id": "5",
-    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema, además de tener un impacto limitado a dispositivos móviles.",
+    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema. La prioridad más baja es adecuada.",
     "changed": false
   },
   {
@@ -56,7 +56,7 @@
     "current_priority_id": "4",
     "proposed_priority": "Low",
     "proposed_priority_id": "4",
-    "reasoning": "El botón de exportación a PDF no funciona en un navegador específico, pero existen alternativas disponibles y no afecta flujos críticos.",
+    "reasoning": "El problema tiene un impacto bajo y existen alternativas disponibles para los usuarios. La prioridad baja es suficiente.",
     "changed": false
   },
   {
@@ -68,7 +68,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "La falta de notificaciones por email genera confusión y aumenta la carga de soporte, pero no bloquea el registro ni el uso del sistema.",
+    "reasoning": "Aunque no bloquea el registro, la falta de notificaciones afecta la experiencia del usuario y genera carga adicional en soporte. La prioridad debe ser media.",
     "changed": true
   },
   {
@@ -80,7 +80,7 @@
     "current_priority_id": "3",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El error al subir archivos grandes afecta a un subconjunto de usuarios y genera fricción, pero no bloquea flujos críticos del sistema.",
+    "reasoning": "El error afecta a una funcionalidad secundaria y no bloquea el uso principal del sistema, pero genera fricción para ciertos usuarios. La prioridad media es adecuada.",
     "changed": false
   },
   {
@@ -92,7 +92,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El cálculo incorrecto de descuentos afecta directamente a los usuarios económicamente, lo que puede dañar la confianza y la reputación de la empresa.",
+    "reasoning": "El cálculo incorrecto de descuentos afecta directamente la confianza del cliente y puede generar pérdidas económicas. La prioridad alta es adecuada.",
     "changed": false
   },
   {
@@ -104,7 +104,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El timeout en consultas de reporting afecta a análisis históricos, pero no bloquea el trabajo diario. La urgencia es moderada debido a la necesidad de informes trimestrales.",
+    "reasoning": "El problema afecta a una funcionalidad importante para análisis históricos, pero no bloquea el trabajo diario. La prioridad media es más adecuada.",
     "changed": true
   },
   {
@@ -116,7 +116,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "La falta de sincronización con el CRM afecta la gestión de oportunidades y acumula deuda de datos, lo que puede impactar en la operación comercial.",
+    "reasoning": "La falta de sincronización con el CRM afecta la gestión comercial y acumula deuda de datos, lo que puede impactar en las operaciones. La prioridad alta es adecuada.",
     "changed": false
   },
   {
@@ -128,7 +128,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas críticas, pero no impacta a todos los usuarios ni detiene completamente el sistema.",
+    "reasoning": "El problema afecta a un grupo específico de usuarios (managers) y bloquea tareas importantes, pero no impacta a todos los usuarios ni detiene completamente el sistema.",
     "changed": false
   },
   {
@@ -152,7 +152,7 @@
     "current_priority_id": "1",
     "proposed_priority": "Highest",
     "proposed_priority_id": "1",
-    "reasoning": "El sistema está completamente inoperativo para todos los usuarios, lo que genera una pérdida total de negocio y requiere atención inmediata.",
+    "reasoning": "El sistema está completamente inaccesible para todos los usuarios, lo que genera una pérdida crítica de negocio y requiere atención inmediata.",
     "changed": false
   }
 ]
