@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agente de Triaje — Revisión de prioridades</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f4f5f7; color: #172b4d; padding: 24px 16px; }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    .subtitle { color: #5e6c84; font-size: 0.9rem; margin-bottom: 24px; }
+    .empty { text-align: center; padding: 60px 0; color: #5e6c84; font-size: 1rem; }
+    .cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    .card { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #dfe1e6; }
+    .card.changed { border-left-color: #ff8b00; }
+    .card.decided-approve { border-left-color: #36b37e; }
+    .card.decided-reject { border-left-color: #6b778c; }
+    .card-key { font-size: 0.75rem; font-weight: 700; color: #0052cc; letter-spacing: 0.05em; }
+    .card-summary { font-size: 0.95rem; font-weight: 600; margin: 4px 0 10px; line-height: 1.3; }
+    .priority-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .badge { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+    .badge-current { background: #dfe1e6; color: #172b4d; }
+    .badge-proposed { background: #fff0b3; color: #974f0c; }
+    .badge-same { background: #e3fcef; color: #006644; }
+    .arrow { color: #5e6c84; font-size: 0.8rem; }
+    .reasoning { font-size: 0.82rem; color: #5e6c84; line-height: 1.4; margin-bottom: 12px; border-left: 3px solid #f4f5f7; padding-left: 8px; }
+    .actions { display: flex; gap: 8px; }
+    .btn { flex: 1; padding: 8px 12px; border: none; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+    .btn:disabled { opacity: 0.4; cursor: default; }
+    .btn-approve { background: #36b37e; color: #fff; }
+    .btn-reject { background: #f4f5f7; color: #172b4d; border: 1px solid #dfe1e6; }
+    .btn-approve.active { outline: 3px solid #00875a; }
+    .btn-reject.active { outline: 3px solid #6b778c; }
+    .footer { margin-top: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .btn-send { padding: 12px 28px; background: #0052cc; color: #fff; border: none; border-radius: 6px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+    .btn-send:disabled { opacity: 0.4; cursor: default; }
+    .status { font-size: 0.9rem; color: #5e6c84; }
+    .status.ok { color: #006644; font-weight: 600; }
+    .status.err { color: #de350b; font-weight: 600; }
+    .no-changes { font-size: 0.8rem; color: #5e6c84; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<h1>Agente de Triaje de Incidencias</h1>
+<p class="subtitle">Revisa las propuestas del agente y aprueba o descarta cada cambio de prioridad.</p>
+
+<div id="app"><p class="empty">Cargando tickets...</p></div>
+
+<div class="footer" id="footer" style="display:none">
+  <button class="btn-send" id="btnSend" disabled>Enviar decisiones a Jira</button>
+  <span class="status" id="status"></span>
+</div>
+
+<script>
+  // ── Configuración ──────────────────────────────────────────────────────────
+  const GITHUB_PAT = "TU_PAT_AQUI";
+  // Se lee automáticamente de la variable de entorno GITHUB_REPOSITORY en Actions.
+  // Para GitHub Pages, el repo se infiere de window.location:
+  const GITHUB_REPO = (() => {
+    const parts = window.location.pathname.split("/").filter(Boolean);
+    if (parts.length >= 2) return `${parts[0]}/${parts[1]}`;
+    // Fallback para desarrollo local — reemplazar con tu repo
+    return "TU_USUARIO/TU_REPO";
+  })();
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const decisions = {};   // { "KEY": "approve" | "reject" }
+  let changedTickets = [];
+
+  const PRIORITY_COLOR = {
+    Highest: "#de350b", High: "#ff5630", Medium: "#ff8b00", Low: "#2684ff", Lowest: "#6b778c"
+  };
+
+  function priorityBadge(name, type) {
+    const cls = type === "proposed" ? "badge-proposed" : type === "same" ? "badge-same" : "badge-current";
+    const color = PRIORITY_COLOR[name] || "#5e6c84";
+    return `<span class="badge ${cls}" style="background:${color}20;color:${color}">${name}</span>`;
+  }
+
+  function renderCards(tickets) {
+    const app = document.getElementById("app");
+    changedTickets = tickets.filter(t => t.changed);
+
+    if (tickets.length === 0) {
+      app.innerHTML = '<p class="empty">No hay tickets pendientes de triaje.</p>';
+      return;
+    }
+
+    const unchanged = tickets.filter(t => !t.changed);
+    let html = '<div class="cards">';
+
+    for (const t of changedTickets) {
+      html += `
+        <div class="card changed" id="card-${t.key}">
+          <div class="card-key">${t.key}</div>
+          <div class="card-summary">${t.summary}</div>
+          <div class="priority-row">
+            ${priorityBadge(t.current_priority, "current")}
+            <span class="arrow">→</span>
+            ${priorityBadge(t.proposed_priority, "proposed")}
+          </div>
+          <div class="reasoning">${t.reasoning}</div>
+          <div class="actions">
+            <button class="btn btn-approve" onclick="decide('${t.key}','approve')">Confirmar</button>
+            <button class="btn btn-reject" onclick="decide('${t.key}','reject')">Dejar como está</button>
+          </div>
+        </div>`;
+    }
+
+    html += "</div>";
+
+    if (unchanged.length > 0) {
+      html += `<p class="no-changes" style="margin-top:16px">${unchanged.length} ticket(s) sin cambio propuesto: ${unchanged.map(t => t.key).join(", ")}</p>`;
+    }
+
+    app.innerHTML = html;
+    document.getElementById("footer").style.display = "flex";
+    updateSendButton();
+  }
+
+  function decide(key, action) {
+    decisions[key] = action;
+    const card = document.getElementById(`card-${key}`);
+    card.classList.remove("decided-approve", "decided-reject");
+    card.classList.add(action === "approve" ? "decided-approve" : "decided-reject");
+    card.querySelector(".btn-approve").classList.toggle("active", action === "approve");
+    card.querySelector(".btn-reject").classList.toggle("active", action === "reject");
+    updateSendButton();
+  }
+
+  function updateSendButton() {
+    const allDecided = changedTickets.every(t => decisions[t.key]);
+    const btn = document.getElementById("btnSend");
+    btn.disabled = !allDecided;
+    const pending = changedTickets.filter(t => !decisions[t.key]).length;
+    document.getElementById("status").textContent = allDecided
+      ? "Todas las propuestas revisadas. Listo para enviar."
+      : `Faltan ${pending} ticket(s) por revisar.`;
+  }
+
+  async function sendDecisions() {
+    const btn = document.getElementById("btnSend");
+    const statusEl = document.getElementById("status");
+    btn.disabled = true;
+    statusEl.className = "status";
+    statusEl.textContent = "Enviando...";
+
+    try {
+      const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/dispatches`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${GITHUB_PAT}`,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          event_type: "triage-decision",
+          client_payload: { decisions },
+        }),
+      });
+
+      if (resp.status === 204) {
+        const approved = Object.values(decisions).filter(v => v === "approve").length;
+        statusEl.className = "status ok";
+        statusEl.textContent = `Enviado correctamente. ${approved} cambio(s) aplicándose en Jira...`;
+      } else {
+        const err = await resp.text();
+        throw new Error(`HTTP ${resp.status}: ${err}`);
+      }
+    } catch (e) {
+      statusEl.className = "status err";
+      statusEl.textContent = `Error: ${e.message}`;
+      btn.disabled = false;
+    }
+  }
+
+  document.getElementById("btnSend").addEventListener("click", sendDecisions);
+
+  fetch("./data/triage.json")
+    .then(r => r.json())
+    .then(renderCards)
+    .catch(() => {
+      document.getElementById("app").innerHTML = '<p class="empty">No se pudo cargar triage.json.</p>';
+    });
+</script>
+</body>
+</html>

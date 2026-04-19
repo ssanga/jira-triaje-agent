@@ -1,0 +1,145 @@
+[
+  {
+    "key": "PT-18",
+    "id": "10505",
+    "summary": "La sesión de usuario se cierra sola cada 10 minutos sin actividad",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "High",
+    "proposed_priority_id": "2",
+    "reasoning": "El cierre inesperado de sesión afecta la experiencia de usuario y puede interrumpir flujos de trabajo, pero no bloquea completamente el uso del sistema.",
+    "changed": false
+  },
+  {
+    "key": "PT-15",
+    "id": "10502",
+    "summary": "Error de cálculo en el resumen de impuestos del informe anual",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "High",
+    "proposed_priority_id": "2",
+    "reasoning": "El error en el cálculo de impuestos puede tener implicaciones legales y financieras significativas, especialmente al tratarse de informes anuales.",
+    "changed": false
+  },
+  {
+    "key": "PT-11",
+    "id": "10498",
+    "summary": "El módulo de exportación genera ficheros CSV corruptos al incluir caracteres especiales",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "Medium",
+    "proposed_priority_id": "3",
+    "reasoning": "El problema afecta la legibilidad de los archivos exportados, pero no impide la funcionalidad principal del sistema ni genera un impacto crítico.",
+    "changed": true
+  },
+  {
+    "key": "PT-10",
+    "id": "10426",
+    "summary": "Interfaz no responsive: menú de navegación se solapa en resoluciones móviles",
+    "current_priority": "Lowest",
+    "current_priority_id": "5",
+    "proposed_priority": "Lowest",
+    "proposed_priority_id": "5",
+    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema, además de tener un impacto limitado a dispositivos móviles.",
+    "changed": false
+  },
+  {
+    "key": "PT-9",
+    "id": "10425",
+    "summary": "Botón \"Exportar a PDF\" no responde en el navegador Chrome versión 124",
+    "current_priority": "Low",
+    "current_priority_id": "4",
+    "proposed_priority": "Low",
+    "proposed_priority_id": "4",
+    "reasoning": "El problema tiene un impacto bajo y existen alternativas disponibles para los usuarios, como usar otro navegador.",
+    "changed": false
+  },
+  {
+    "key": "PT-8",
+    "id": "10424",
+    "summary": "Notificaciones por email no se envían a usuarios recién registrados",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "Medium",
+    "proposed_priority_id": "3",
+    "reasoning": "Aunque no bloquea el registro, la falta de notificaciones afecta la experiencia de usuario y genera confusión, lo que puede impactar la percepción del servicio.",
+    "changed": true
+  },
+  {
+    "key": "PT-7",
+    "id": "10423",
+    "summary": "Error 500 al intentar subir archivos de más de 10 MB",
+    "current_priority": "Medium",
+    "current_priority_id": "3",
+    "proposed_priority": "Medium",
+    "proposed_priority_id": "3",
+    "reasoning": "El error afecta a una funcionalidad secundaria y no bloquea el uso general del sistema, pero genera fricción para usuarios que necesitan cargar archivos grandes.",
+    "changed": false
+  },
+  {
+    "key": "PT-6",
+    "id": "10422",
+    "summary": "Cálculo de descuentos incorrecto en el carrito de compra",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "High",
+    "proposed_priority_id": "2",
+    "reasoning": "El cálculo incorrecto de descuentos afecta directamente a los usuarios económicamente, lo que puede dañar la confianza y la reputación de la empresa.",
+    "changed": false
+  },
+  {
+    "key": "PT-5",
+    "id": "10421",
+    "summary": "Timeout en consultas de reporting para rangos de fechas superiores a 3 meses",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "Medium",
+    "proposed_priority_id": "3",
+    "reasoning": "El problema afecta a una funcionalidad específica (reportes históricos) y tiene un impacto limitado en el trabajo diario, aunque es relevante para la dirección.",
+    "changed": true
+  },
+  {
+    "key": "PT-4",
+    "id": "10420",
+    "summary": "Datos de clientes no se sincronizan con el CRM externo desde ayer",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "High",
+    "proposed_priority_id": "2",
+    "reasoning": "La falta de sincronización con el CRM afecta la gestión de clientes y oportunidades, lo que puede impactar directamente en las operaciones comerciales.",
+    "changed": false
+  },
+  {
+    "key": "PT-3",
+    "id": "10419",
+    "summary": "Panel de administración inaccesible para el rol \"manager\"",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "High",
+    "proposed_priority_id": "2",
+    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas importantes, pero no impacta a todos los usuarios ni detiene completamente el negocio.",
+    "changed": false
+  },
+  {
+    "key": "PT-2",
+    "id": "10418",
+    "summary": "Facturas generadas con importes incorrectos en el módulo de facturación",
+    "current_priority": "Highest",
+    "current_priority_id": "1",
+    "proposed_priority": "Highest",
+    "proposed_priority_id": "1",
+    "reasoning": "El error tiene un impacto económico y legal directo, y requiere resolución inmediata antes del cierre del día para evitar mayores consecuencias.",
+    "changed": false
+  },
+  {
+    "key": "PT-1",
+    "id": "10417",
+    "summary": "Login completamente caído en producción – todos los usuarios bloqueados",
+    "current_priority": "Highest",
+    "current_priority_id": "1",
+    "proposed_priority": "Highest",
+    "proposed_priority_id": "1",
+    "reasoning": "El sistema está completamente inoperativo para todos los usuarios, lo que genera una pérdida total de negocio y requiere atención inmediata.",
+    "changed": false
+  }
+]
