@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import date
 
 import requests
@@ -102,6 +103,53 @@ def clear_suggested_priority(
     resp = requests.put(url, json=payload, auth=(email, token))
     resp.raise_for_status()
     logger.info("Campo IA limpiado en issue %s", issue_id)
+
+
+def _get_all_issues(jira_url: str, email: str, token: str, project_key: str) -> list[dict]:
+    url = f"{jira_url}/rest/api/3/search/jql"
+    jql = f"project = {project_key} AND statusCategory != Done ORDER BY created DESC"
+    issues, next_page_token = [], None
+    while True:
+        payload = {"jql": jql, "fields": ["summary"], "maxResults": _PAGE_SIZE}
+        if next_page_token:
+            payload["nextPageToken"] = next_page_token
+        resp = requests.post(url, json=payload, auth=(email, token))
+        resp.raise_for_status()
+        data = resp.json()
+        page = data.get("issues", [])
+        issues.extend(page)
+        next_page_token = data.get("nextPageToken")
+        if not next_page_token or len(page) < _PAGE_SIZE:
+            break
+    return issues
+
+
+def reset_priorities(project_key: str) -> None:
+    """Resetea la prioridad a Medium y limpia el campo IA en todos los issues abiertos del proyecto."""
+    jira_url = os.environ["JIRA_URL"]
+    email = os.environ["JIRA_EMAIL"]
+    token = os.environ["JIRA_TOKEN"]
+    issues = _get_all_issues(jira_url, email, token, project_key)
+    logger.info("Reseteando prioridad a Medium en %d issues...", len(issues))
+    for issue in issues:
+        url = f"{jira_url}/rest/api/3/issue/{issue['id']}"
+        resp = requests.put(url, json={"fields": {"priority": {"id": "3"}, "customfield_10112": None}}, auth=(email, token))
+        resp.raise_for_status()
+        logger.info("  %s → Medium, campo IA limpiado", issue["key"])
+
+
+def reset_issue_types(project_key: str) -> None:
+    """Resetea el tipo de todos los issues abiertos del proyecto a Task."""
+    jira_url = os.environ["JIRA_URL"]
+    email = os.environ["JIRA_EMAIL"]
+    token = os.environ["JIRA_TOKEN"]
+    issues = _get_all_issues(jira_url, email, token, project_key)
+    logger.info("Reseteando tipo a Task en %d issues...", len(issues))
+    for issue in issues:
+        url = f"{jira_url}/rest/api/3/issue/{issue['id']}"
+        resp = requests.put(url, json={"fields": {"issuetype": {"name": "Task"}}}, auth=(email, token))
+        resp.raise_for_status()
+        logger.info("  %s → Task", issue["key"])
 
 
 def add_triage_comment(jira_url: str, email: str, token: str, issue_id: str, priority_name: str) -> None:
