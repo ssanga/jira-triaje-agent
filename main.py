@@ -6,7 +6,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from src.ai import make_client, triage_all
-from src.jira import PRIORITY_NAME_TO_ID, extract_description, get_all_jira_bugs
+from src.jira import PRIORITY_NAME_TO_ID, extract_description, get_all_jira_bugs, set_suggested_priority
 
 load_dotenv()
 
@@ -19,15 +19,53 @@ GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 
 OUTPUT_PATH = Path(__file__).parent / "data" / "triage.json"
 
+# ── Estrategias ────────────────────────────────────────────────────────────────
+# Cada estrategia recibe la lista de resultados del triaje y actúa de forma
+# independiente. Para añadir una nueva alternativa, implementa una función con
+# la misma firma y añádela a ACTIVE_STRATEGIES.
 
-def main():
-    # 1. Cargar todos los bugs de Jira en memoria
+def strategy_github_pages(results: list[dict]) -> None:
+    """Escribe triage.json para que GitHub Pages sirva la UI de revisión."""
+    OUTPUT_PATH.parent.mkdir(exist_ok=True)
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+    changed = sum(1 for r in results if r["changed"])
+    logger.info("[GitHub Pages] %d tickets escritos en %s (%d con cambio)", len(results), OUTPUT_PATH, changed)
+
+
+def strategy_jira_field(results: list[dict]) -> None:
+    """Escribe la sugerencia de prioridad directamente en el campo personalizado de Jira."""
+    field_id = "customfield_10112"
+    logger.info("[Jira Field] Escribiendo sugerencias en campo %s...", field_id)
+    ok = 0
+    for r in results:
+        try:
+            set_suggested_priority(
+                JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
+                r["id"], field_id,
+                r["proposed_priority"], r["reasoning"],
+            )
+            ok += 1
+        except Exception as exc:
+            logger.warning("[Jira Field] No se pudo actualizar %s: %s", r["key"], exc)
+    logger.info("[Jira Field] %d/%d tickets actualizados", ok, len(results))
+
+
+# Estrategias activas — comenta las que no quieras ejecutar en cada demostración
+ACTIVE_STRATEGIES = [
+    # strategy_github_pages,
+    strategy_jira_field,
+]
+
+# ── Núcleo de triaje ───────────────────────────────────────────────────────────
+
+def run_triage() -> list[dict]:
+    """Lee bugs de Jira, los analiza con IA y devuelve la lista de resultados."""
     logger.info("Leyendo todos los bugs del proyecto PT...")
     issues = get_all_jira_bugs(JIRA_URL, JIRA_EMAIL, JIRA_TOKEN)
 
-    # 2. Preparar payload para la IA
     tickets = []
-    meta = {}  # key → datos originales necesarios para construir el resultado final
+    meta = {}
     for issue in issues:
         key = issue["key"]
         fields = issue["fields"]
@@ -45,11 +83,9 @@ def main():
             "current_priority_id": PRIORITY_NAME_TO_ID.get(current_priority, "3"),
         }
 
-    # 3. Triar en batches — una llamada por batch, no por ticket
     client = make_client(GITHUB_TOKEN)
     ai_results = triage_all(client, tickets)
 
-    # 4. Combinar resultados
     results = []
     for t in tickets:
         key = t["key"]
@@ -76,13 +112,16 @@ def main():
         })
         logger.info("%s: %s → %s %s", key, t["current_priority"], proposed_priority, "(cambio)" if changed else "(igual)")
 
-    OUTPUT_PATH.parent.mkdir(exist_ok=True)
-    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+    logger.info("Triaje completado: %d tickets, %d con cambio propuesto",
+                len(results), sum(1 for r in results if r["changed"]))
+    return results
 
-    changed_count = sum(1 for r in results if r["changed"])
-    logger.info("Resultado: %d tickets analizados, %d con cambio propuesto", len(results), changed_count)
-    logger.info("Escrito en %s", OUTPUT_PATH)
+
+def main():
+    results = run_triage()
+    for strategy in ACTIVE_STRATEGIES:
+        logger.info("Ejecutando estrategia: %s", strategy.__name__)
+        strategy(results)
 
 
 if __name__ == "__main__":

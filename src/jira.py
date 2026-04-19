@@ -13,7 +13,8 @@ PRIORITY_NAME_TO_ID = {
     "Lowest": "5",
 }
 
-_JQL = "project = PT AND issuetype = Bug AND statusCategory != Done ORDER BY created DESC"
+# _JQL = "project = PT AND issuetype = Bug AND statusCategory != Done ORDER BY created DESC"
+_JQL = "project = PT AND statusCategory != Done ORDER BY created DESC"
 _PAGE_SIZE = 100
 
 
@@ -77,6 +78,30 @@ def update_issue_priority(jira_url: str, email: str, token: str, issue_id: str, 
     resp = requests.put(url, json=payload, auth=(email, token))
     resp.raise_for_status()
     logger.info("Prioridad actualizada en issue %s → id=%s", issue_id, priority_id)
+
+
+def set_suggested_priority(
+    jira_url: str, email: str, token: str,
+    issue_id: str, field_id: str, priority: str, reasoning: str,
+) -> None:
+    url = f"{jira_url}/rest/api/3/issue/{issue_id}"
+    value = f"{priority} — {reasoning}" if reasoning else priority
+    payload = {"fields": {field_id: value}}
+    logger.debug("PUT %s | campo %s = %r", url, field_id, value)
+    resp = requests.put(url, json=payload, auth=(email, token))
+    resp.raise_for_status()
+    logger.info("Campo IA actualizado en issue %s → %s", issue_id, priority)
+
+
+def clear_suggested_priority(
+    jira_url: str, email: str, token: str,
+    issue_id: str, field_id: str,
+) -> None:
+    url = f"{jira_url}/rest/api/3/issue/{issue_id}"
+    payload = {"fields": {field_id: None}}
+    resp = requests.put(url, json=payload, auth=(email, token))
+    resp.raise_for_status()
+    logger.info("Campo IA limpiado en issue %s", issue_id)
 
 
 def add_triage_comment(jira_url: str, email: str, token: str, issue_id: str, priority_name: str) -> None:
