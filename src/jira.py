@@ -94,6 +94,18 @@ def set_suggested_priority(
     logger.info("Campo IA actualizado en issue %s → %s", issue_id, priority)
 
 
+def set_suggested_worktype(
+    jira_url: str, email: str, token: str,
+    issue_id: str, field_id: str, worktype: str, reasoning: str,
+) -> None:
+    url = f"{jira_url}/rest/api/3/issue/{issue_id}"
+    value = f"{worktype} — {reasoning}" if reasoning else worktype
+    payload = {"fields": {field_id: value}}
+    resp = requests.put(url, json=payload, auth=(email, token))
+    resp.raise_for_status()
+    logger.info("Campo tipología actualizado en issue %s → %s", issue_id, worktype)
+
+
 def clear_suggested_priority(
     jira_url: str, email: str, token: str,
     issue_id: str, field_id: str,
@@ -133,7 +145,7 @@ def reset_priorities(project_key: str) -> None:
     logger.info("Reseteando prioridad a Medium en %d issues...", len(issues))
     for issue in issues:
         url = f"{jira_url}/rest/api/3/issue/{issue['id']}"
-        resp = requests.put(url, json={"fields": {"priority": {"id": "3"}, "customfield_10112": None}}, auth=(email, token))
+        resp = requests.put(url, json={"fields": {"priority": {"id": "3"}, "customfield_10112": None, "customfield_10113": None}}, auth=(email, token))
         resp.raise_for_status()
         logger.info("  %s → Medium, campo IA limpiado", issue["key"])
 

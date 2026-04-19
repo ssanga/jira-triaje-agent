@@ -5,8 +5,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from src.ai import make_client, triage_all
-from src.jira import PRIORITY_NAME_TO_ID, extract_description, get_all_jira_bugs, set_suggested_priority
+from src.ai import classify_worktype_all, make_client, triage_all
+from src.jira import PRIORITY_NAME_TO_ID, extract_description, get_all_jira_bugs, set_suggested_priority, set_suggested_worktype
 
 load_dotenv()
 
@@ -34,21 +34,45 @@ def strategy_github_pages(results: list[dict]) -> None:
 
 
 def strategy_jira_field(results: list[dict]) -> None:
-    """Escribe la sugerencia de prioridad directamente en el campo personalizado de Jira."""
-    field_id = "customfield_10112"
-    logger.info("[Jira Field] Escribiendo sugerencias en campo %s...", field_id)
+    """Escribe prioridad y tipología sugeridas directamente en campos personalizados de Jira."""
+    priority_field = "customfield_10112"
+    worktype_field = "customfield_10113"
+
+    # Prioridad sugerida
+    logger.info("[Jira Field] Escribiendo prioridades en campo %s...", priority_field)
     ok = 0
     for r in results:
         try:
             set_suggested_priority(
                 JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
-                r["id"], field_id,
+                r["id"], priority_field,
                 r["proposed_priority"], r["reasoning"],
             )
             ok += 1
         except Exception as exc:
-            logger.warning("[Jira Field] No se pudo actualizar %s: %s", r["key"], exc)
-    logger.info("[Jira Field] %d/%d tickets actualizados", ok, len(results))
+            logger.warning("[Jira Field] No se pudo actualizar prioridad en %s: %s", r["key"], exc)
+    logger.info("[Jira Field] Prioridad: %d/%d tickets actualizados", ok, len(results))
+
+    # Tipología sugerida
+    logger.info("[Jira Field] Clasificando tipología con IA...")
+    client = make_client(GITHUB_TOKEN)
+    worktype_results = classify_worktype_all(client, results)
+    ok = 0
+    for r in results:
+        wt = worktype_results.get(r["key"])
+        if not wt:
+            logger.warning("[Jira Field] Sin clasificación de tipología para %s", r["key"])
+            continue
+        try:
+            set_suggested_worktype(
+                JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
+                r["id"], worktype_field,
+                wt["worktype"], wt["reasoning"],
+            )
+            ok += 1
+        except Exception as exc:
+            logger.warning("[Jira Field] No se pudo actualizar tipología en %s: %s", r["key"], exc)
+    logger.info("[Jira Field] Tipología: %d/%d tickets actualizados", ok, len(results))
 
 
 # Estrategias activas — comenta las que no quieras ejecutar en cada demostración
@@ -103,6 +127,7 @@ def run_triage() -> list[dict]:
             "jira_url": f"{JIRA_URL}/browse/{key}",
             "id": meta[key]["id"],
             "summary": t["summary"],
+            "description": t["description"],
             "current_priority": t["current_priority"],
             "current_priority_id": meta[key]["current_priority_id"],
             "proposed_priority": proposed_priority,
