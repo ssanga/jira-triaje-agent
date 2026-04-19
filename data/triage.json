@@ -8,7 +8,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El problema afecta a la experiencia del usuario al requerir autenticaciones frecuentes, pero no bloquea el acceso al sistema ni genera un impacto crítico en la operación.",
+    "reasoning": "El cierre inesperado de sesión afecta la experiencia del usuario y puede interrumpir flujos de trabajo, pero no bloquea completamente el uso del sistema.",
     "changed": false
   },
   {
@@ -32,7 +32,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema afecta la legibilidad de los archivos exportados, pero no bloquea la funcionalidad principal del sistema y tiene alternativas para mitigar el impacto.",
+    "reasoning": "El problema de caracteres especiales en la exportación a CSV afecta la usabilidad, pero no bloquea la funcionalidad principal del sistema.",
     "changed": true
   },
   {
@@ -44,7 +44,7 @@
     "current_priority_id": "5",
     "proposed_priority": "Lowest",
     "proposed_priority_id": "5",
-    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema ni la capacidad de los usuarios para realizar tareas.",
+    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema, además de tener un impacto limitado a dispositivos móviles.",
     "changed": false
   },
   {
@@ -56,7 +56,7 @@
     "current_priority_id": "4",
     "proposed_priority": "Low",
     "proposed_priority_id": "4",
-    "reasoning": "El problema afecta solo a un navegador específico y tiene una solución alternativa clara, por lo que el impacto es bajo.",
+    "reasoning": "El botón de exportación a PDF no funciona en un navegador específico, pero existen alternativas disponibles y no afecta flujos críticos.",
     "changed": false
   },
   {
@@ -68,7 +68,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "Aunque no bloquea el registro, la falta de notificaciones por email afecta la experiencia de usuario y genera una carga adicional para el soporte.",
+    "reasoning": "La falta de notificaciones por email genera confusión y aumenta la carga de soporte, pero no bloquea el registro ni el uso del sistema.",
     "changed": true
   },
   {
@@ -80,7 +80,7 @@
     "current_priority_id": "3",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema afecta a una funcionalidad no crítica y tiene un impacto limitado, aunque genera fricción para los usuarios que necesitan cargar archivos grandes.",
+    "reasoning": "El error al subir archivos grandes afecta a un subconjunto de usuarios y genera fricción, pero no bloquea flujos críticos del sistema.",
     "changed": false
   },
   {
@@ -104,7 +104,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema afecta a una funcionalidad de análisis histórico que no es crítica para el trabajo diario, aunque tiene cierta urgencia debido a necesidades específicas del equipo de dirección.",
+    "reasoning": "El timeout en consultas de reporting afecta a análisis históricos, pero no bloquea el trabajo diario. La urgencia es moderada debido a la necesidad de informes trimestrales.",
     "changed": true
   },
   {
@@ -116,7 +116,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "La falta de sincronización con el CRM afecta la gestión de oportunidades comerciales, lo que puede impactar en los ingresos si no se resuelve rápidamente.",
+    "reasoning": "La falta de sincronización con el CRM afecta la gestión de oportunidades y acumula deuda de datos, lo que puede impactar en la operación comercial.",
     "changed": false
   },
   {
@@ -128,7 +128,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas importantes, pero no impacta a todos los usuarios ni detiene completamente el negocio.",
+    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas críticas, pero no impacta a todos los usuarios ni detiene completamente el sistema.",
     "changed": false
   },
   {
@@ -152,7 +152,7 @@
     "current_priority_id": "1",
     "proposed_priority": "Highest",
     "proposed_priority_id": "1",
-    "reasoning": "El sistema está completamente inaccesible para todos los usuarios, lo que representa un impacto crítico y requiere atención inmediata para restaurar la operatividad.",
+    "reasoning": "El sistema está completamente inoperativo para todos los usuarios, lo que genera una pérdida total de negocio y requiere atención inmediata.",
     "changed": false
   }
 ]
