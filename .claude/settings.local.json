@@ -6,7 +6,10 @@
       "mcp__claude_ai_Atlassian__getTransitionsForJiraIssue",
       "mcp__claude_ai_Atlassian__transitionJiraIssue",
       "mcp__claude_ai_Atlassian__createJiraIssue",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
