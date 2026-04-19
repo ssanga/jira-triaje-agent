@@ -5,8 +5,16 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from src.ai import classify_worktype_all, make_client, triage_all
-from src.jira import PRIORITY_NAME_TO_ID, extract_description, get_all_jira_bugs, set_suggested_priority, set_suggested_worktype
+from src.ai import make_client, suggest_priority_all, suggest_worktype_all
+from src.jira import (
+    PRIORITY_NAME_TO_ID,
+    extract_description,
+    get_all_open_tickets,
+    get_tickets_needing_priority,
+    get_tickets_needing_worktype,
+    set_suggested_priority,
+    set_suggested_worktype,
+)
 
 load_dotenv()
 
@@ -19,13 +27,51 @@ GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 
 OUTPUT_PATH = Path(__file__).parent / "data" / "triage.json"
 
-# ── Estrategias ────────────────────────────────────────────────────────────────
-# Cada estrategia recibe la lista de resultados del triaje y actúa de forma
-# independiente. Para añadir una nueva alternativa, implementa una función con
-# la misma firma y añádela a ACTIVE_STRATEGIES.
+# ── Helpers ────────────────────────────────────────────────────────────────────
 
-def strategy_github_pages(results: list[dict]) -> None:
-    """Escribe triage.json para que GitHub Pages sirva la UI de revisión."""
+def _to_ticket_payload(issue: dict) -> dict:
+    fields = issue["fields"]
+    priority_obj = fields.get("priority") or {}
+    current_priority = priority_obj.get("name", "Medium")
+    return {
+        "key": issue["key"],
+        "id": issue["id"],
+        "summary": fields.get("summary", ""),
+        "description": extract_description(fields.get("description")),
+        "current_priority": current_priority,
+        "current_priority_id": PRIORITY_NAME_TO_ID.get(current_priority, "3"),
+        "jira_url": f"{JIRA_URL}/browse/{issue['key']}",
+    }
+
+# ── Estrategias ────────────────────────────────────────────────────────────────
+# Cada estrategia es autónoma: obtiene sus propios tickets y actúa de forma
+# independiente. Para añadir una nueva alternativa, implementa una función sin
+# parámetros y añádela a ACTIVE_STRATEGIES.
+
+def strategy_github_pages() -> None:
+    """Obtiene todos los tickets abiertos, triaja prioridad con IA y escribe triage.json."""
+    issues = get_all_open_tickets(JIRA_URL, JIRA_EMAIL, JIRA_TOKEN)
+    tickets = [_to_ticket_payload(i) for i in issues]
+
+    client = make_client(GITHUB_TOKEN)
+    ai_results = suggest_priority_all(client, tickets)
+
+    results = []
+    for t in tickets:
+        ai = ai_results.get(t["key"])
+        if not ai:
+            logger.warning("%s: sin respuesta de la IA, omitido", t["key"])
+            continue
+        proposed_priority = ai.get("priority", t["current_priority"])
+        results.append({
+            **t,
+            "proposed_priority": proposed_priority,
+            "proposed_priority_id": PRIORITY_NAME_TO_ID.get(proposed_priority, t["current_priority_id"]),
+            "reasoning": ai.get("reasoning", ""),
+            "changed": proposed_priority != t["current_priority"],
+        })
+        logger.info("%s: %s → %s", t["key"], t["current_priority"], proposed_priority)
+
     OUTPUT_PATH.parent.mkdir(exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(results, f, ensure_ascii=False, indent=2)
@@ -33,46 +79,59 @@ def strategy_github_pages(results: list[dict]) -> None:
     logger.info("[GitHub Pages] %d tickets escritos en %s (%d con cambio)", len(results), OUTPUT_PATH, changed)
 
 
-def strategy_jira_field(results: list[dict]) -> None:
-    """Escribe prioridad y tipología sugeridas directamente en campos personalizados de Jira."""
+def strategy_jira_field() -> None:
+    """Escribe sugerencias de prioridad y tipología solo en tickets que aún no las tienen."""
+    client = make_client(GITHUB_TOKEN)
     priority_field = "customfield_10112"
     worktype_field = "customfield_10113"
 
-    # Prioridad sugerida
-    logger.info("[Jira Field] Escribiendo prioridades en campo %s...", priority_field)
-    ok = 0
-    for r in results:
-        try:
-            set_suggested_priority(
-                JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
-                r["id"], priority_field,
-                r["proposed_priority"], r["reasoning"],
-            )
-            ok += 1
-        except Exception as exc:
-            logger.warning("[Jira Field] No se pudo actualizar prioridad en %s: %s", r["key"], exc)
-    logger.info("[Jira Field] Prioridad: %d/%d tickets actualizados", ok, len(results))
+    # ── Prioridad ──
+    issues = get_tickets_needing_priority(JIRA_URL, JIRA_EMAIL, JIRA_TOKEN)
+    if issues:
+        tickets = [_to_ticket_payload(i) for i in issues]
+        logger.info("[Jira Field] Sugiriendo prioridad para %d tickets sin campo IA...", len(tickets))
+        ai_results = suggest_priority_all(client, tickets)
+        ok = 0
+        for t in tickets:
+            ai = ai_results.get(t["key"])
+            if not ai:
+                continue
+            try:
+                set_suggested_priority(
+                    JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
+                    t["id"], priority_field,
+                    ai["priority"], ai.get("reasoning", ""),
+                )
+                ok += 1
+            except Exception as exc:
+                logger.warning("[Jira Field] Error prioridad en %s: %s", t["key"], exc)
+        logger.info("[Jira Field] Prioridad: %d/%d tickets actualizados", ok, len(tickets))
+    else:
+        logger.info("[Jira Field] Todos los tickets ya tienen sugerencia de prioridad")
 
-    # Tipología sugerida
-    logger.info("[Jira Field] Clasificando tipología con IA...")
-    client = make_client(GITHUB_TOKEN)
-    worktype_results = classify_worktype_all(client, results)
-    ok = 0
-    for r in results:
-        wt = worktype_results.get(r["key"])
-        if not wt:
-            logger.warning("[Jira Field] Sin clasificación de tipología para %s", r["key"])
-            continue
-        try:
-            set_suggested_worktype(
-                JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
-                r["id"], worktype_field,
-                wt["worktype"], wt["reasoning"],
-            )
-            ok += 1
-        except Exception as exc:
-            logger.warning("[Jira Field] No se pudo actualizar tipología en %s: %s", r["key"], exc)
-    logger.info("[Jira Field] Tipología: %d/%d tickets actualizados", ok, len(results))
+    # ── Tipología ──
+    issues = get_tickets_needing_worktype(JIRA_URL, JIRA_EMAIL, JIRA_TOKEN)
+    if issues:
+        tickets = [_to_ticket_payload(i) for i in issues]
+        logger.info("[Jira Field] Sugiriendo tipología para %d tickets sin campo IA...", len(tickets))
+        wt_results = suggest_worktype_all(client, tickets)
+        ok = 0
+        for t in tickets:
+            wt = wt_results.get(t["key"])
+            if not wt:
+                continue
+            try:
+                set_suggested_worktype(
+                    JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
+                    t["id"], worktype_field,
+                    wt["worktype"], wt.get("reasoning", ""),
+                )
+                ok += 1
+            except Exception as exc:
+                logger.warning("[Jira Field] Error tipología en %s: %s", t["key"], exc)
+        logger.info("[Jira Field] Tipología: %d/%d tickets actualizados", ok, len(tickets))
+    else:
+        logger.info("[Jira Field] Todos los tickets ya tienen sugerencia de tipología")
 
 
 # Estrategias activas — comenta las que no quieras ejecutar en cada demostración
@@ -81,72 +140,12 @@ ACTIVE_STRATEGIES = [
     strategy_jira_field,
 ]
 
-# ── Núcleo de triaje ───────────────────────────────────────────────────────────
-
-def run_triage() -> list[dict]:
-    """Lee bugs de Jira, los analiza con IA y devuelve la lista de resultados."""
-    logger.info("Leyendo todos los bugs del proyecto PT...")
-    issues = get_all_jira_bugs(JIRA_URL, JIRA_EMAIL, JIRA_TOKEN)
-
-    tickets = []
-    meta = {}
-    for issue in issues:
-        key = issue["key"]
-        fields = issue["fields"]
-        priority_obj = fields.get("priority") or {}
-        current_priority = priority_obj.get("name", "Medium")
-        tickets.append({
-            "key": key,
-            "summary": fields.get("summary", ""),
-            "description": extract_description(fields.get("description")),
-            "current_priority": current_priority,
-        })
-        meta[key] = {
-            "id": issue["id"],
-            "current_priority": current_priority,
-            "current_priority_id": PRIORITY_NAME_TO_ID.get(current_priority, "3"),
-        }
-
-    client = make_client(GITHUB_TOKEN)
-    ai_results = triage_all(client, tickets)
-
-    results = []
-    for t in tickets:
-        key = t["key"]
-        ai = ai_results.get(key)
-        if not ai:
-            logger.warning("%s: sin respuesta de la IA, omitido", key)
-            continue
-
-        proposed_priority = ai.get("priority", t["current_priority"])
-        proposed_priority_id = PRIORITY_NAME_TO_ID.get(proposed_priority, meta[key]["current_priority_id"])
-        changed = proposed_priority != t["current_priority"]
-
-        results.append({
-            "key": key,
-            "jira_url": f"{JIRA_URL}/browse/{key}",
-            "id": meta[key]["id"],
-            "summary": t["summary"],
-            "description": t["description"],
-            "current_priority": t["current_priority"],
-            "current_priority_id": meta[key]["current_priority_id"],
-            "proposed_priority": proposed_priority,
-            "proposed_priority_id": proposed_priority_id,
-            "reasoning": ai.get("reasoning", ""),
-            "changed": changed,
-        })
-        logger.info("%s: %s → %s %s", key, t["current_priority"], proposed_priority, "(cambio)" if changed else "(igual)")
-
-    logger.info("Triaje completado: %d tickets, %d con cambio propuesto",
-                len(results), sum(1 for r in results if r["changed"]))
-    return results
-
+# ── Entry point ────────────────────────────────────────────────────────────────
 
 def main():
-    results = run_triage()
     for strategy in ACTIVE_STRATEGIES:
         logger.info("Ejecutando estrategia: %s", strategy.__name__)
-        strategy(results)
+        strategy()
 
 
 if __name__ == "__main__":

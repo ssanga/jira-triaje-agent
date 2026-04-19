@@ -14,42 +14,51 @@ PRIORITY_NAME_TO_ID = {
     "Lowest": "5",
 }
 
-# _JQL = "project = PT AND issuetype = Bug AND statusCategory != Done ORDER BY created DESC"
-_JQL = "project = PT AND statusCategory != Done ORDER BY created DESC"
 _PAGE_SIZE = 100
 
+_JQL_ALL_OPEN        = "project = PT AND statusCategory != Done ORDER BY created DESC"
+_JQL_NEEDS_PRIORITY  = "project = PT AND statusCategory != Done AND cf[10112] is EMPTY ORDER BY created DESC"
+_JQL_NEEDS_WORKTYPE  = "project = PT AND statusCategory != Done AND cf[10113] is EMPTY ORDER BY created DESC"
 
-def get_all_jira_bugs(jira_url: str, email: str, token: str) -> list[dict]:
+_FIELDS_FULL  = ["summary", "description", "priority", "status"]
+_FIELDS_BASIC = ["summary", "description", "priority"]
+
+
+def _fetch_issues(jira_url: str, email: str, token: str, jql: str, fields: list[str]) -> list[dict]:
     url = f"{jira_url}/rest/api/3/search/jql"
-    issues = []
-    next_page_token = None
-    page_num = 0
-
+    issues, next_page_token, page_num = [], None, 0
     while True:
-        payload = {
-            "jql": _JQL,
-            "fields": ["summary", "description", "priority", "status"],
-            "maxResults": _PAGE_SIZE,
-        }
+        payload = {"jql": jql, "fields": fields, "maxResults": _PAGE_SIZE}
         if next_page_token:
             payload["nextPageToken"] = next_page_token
-
         page_num += 1
-        logger.debug("POST %s | página %d", url, page_num)
+        logger.debug("POST %s | página %d | jql: %s", url, page_num, jql[:60])
         resp = requests.post(url, json=payload, auth=(email, token))
         resp.raise_for_status()
-
         data = resp.json()
         page = data.get("issues", [])
         issues.extend(page)
         logger.info("Página %d: %d tickets acumulados", page_num, len(issues))
-
         next_page_token = data.get("nextPageToken")
         if not next_page_token or len(page) < _PAGE_SIZE:
             break
-
-    logger.info("Cargados %d bugs en memoria", len(issues))
+    logger.info("Cargados %d tickets en memoria", len(issues))
     return issues
+
+
+def get_all_open_tickets(jira_url: str, email: str, token: str) -> list[dict]:
+    """Todos los tickets abiertos del proyecto — usado por la estrategia GitHub Pages."""
+    return _fetch_issues(jira_url, email, token, _JQL_ALL_OPEN, _FIELDS_FULL)
+
+
+def get_tickets_needing_priority(jira_url: str, email: str, token: str) -> list[dict]:
+    """Tickets sin sugerencia de prioridad IA (campo customfield_10112 vacío)."""
+    return _fetch_issues(jira_url, email, token, _JQL_NEEDS_PRIORITY, _FIELDS_BASIC)
+
+
+def get_tickets_needing_worktype(jira_url: str, email: str, token: str) -> list[dict]:
+    """Tickets sin sugerencia de tipología IA (campo customfield_10113 vacío)."""
+    return _fetch_issues(jira_url, email, token, _JQL_NEEDS_WORKTYPE, _FIELDS_BASIC)
 
 
 def extract_description(description_field) -> str:
@@ -118,22 +127,8 @@ def clear_suggested_priority(
 
 
 def _get_all_issues(jira_url: str, email: str, token: str, project_key: str) -> list[dict]:
-    url = f"{jira_url}/rest/api/3/search/jql"
     jql = f"project = {project_key} AND statusCategory != Done ORDER BY created DESC"
-    issues, next_page_token = [], None
-    while True:
-        payload = {"jql": jql, "fields": ["summary"], "maxResults": _PAGE_SIZE}
-        if next_page_token:
-            payload["nextPageToken"] = next_page_token
-        resp = requests.post(url, json=payload, auth=(email, token))
-        resp.raise_for_status()
-        data = resp.json()
-        page = data.get("issues", [])
-        issues.extend(page)
-        next_page_token = data.get("nextPageToken")
-        if not next_page_token or len(page) < _PAGE_SIZE:
-            break
-    return issues
+    return _fetch_issues(jira_url, email, token, jql, ["summary"])
 
 
 def reset_priorities(project_key: str) -> None:
