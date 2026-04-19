@@ -142,7 +142,13 @@
     statusEl.textContent = "Enviando...";
 
     try {
-      const resp = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/dispatches`, {
+      const url = `https://api.github.com/repos/${GITHUB_REPO}/dispatches`;
+      console.log("URL:", url);
+      console.log("PAT length:", GITHUB_PAT.length);
+      console.log("PAT prefix:", GITHUB_PAT.substring(0, 10));
+      console.log("Auth header:", `Bearer ${GITHUB_PAT.substring(0, 10)}...`);
+
+      const resp = await fetch(url, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${GITHUB_PAT}`,
