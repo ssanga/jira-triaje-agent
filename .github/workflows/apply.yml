@@ -29,7 +29,7 @@ jobs:
         run: |
           DECISIONS=$(cat decisions.json)
           export DECISIONS
-          python src/apply.py
+          python -m src.apply
         env:
           JIRA_URL: ${{ secrets.JIRA_URL }}
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
