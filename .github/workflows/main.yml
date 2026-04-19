@@ -1,8 +1,8 @@
 name: Triage y Deploy
 
 on:
-  schedule:
-    - cron: '0 8,12,16 * * 1-5'  # 8h, 12h y 16h lunes-viernes (UTC)
+  # schedule:
+  #   - cron: '0 8,12,16 * * 1-5'  # 8h, 12h y 16h lunes-viernes (UTC)
   push:
     branches: [main]
     paths-ignore:
