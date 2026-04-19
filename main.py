@@ -8,12 +8,16 @@ from dotenv import load_dotenv
 from src.ai import make_client, suggest_priority_all, suggest_worktype_all
 from src.jira import (
     PRIORITY_NAME_TO_ID,
+    add_auto_apply_comment,
     extract_description,
     get_all_open_tickets,
+    get_tickets_needing_any_suggestion,
     get_tickets_needing_priority,
     get_tickets_needing_worktype,
     set_suggested_priority,
     set_suggested_worktype,
+    update_issue_priority,
+    update_issue_type,
 )
 
 load_dotenv()
@@ -134,10 +138,86 @@ def strategy_jira_field() -> None:
         logger.info("[Jira Field] Todos los tickets ya tienen sugerencia de tipología")
 
 
+def strategy_auto_apply() -> None:
+    """Aplica automáticamente prioridad y tipología sugeridas por IA sin revisión humana.
+    Actualiza los campos reales de Jira, rellena los campos IA y deja un comentario de trazabilidad.
+    """
+    client = make_client(GITHUB_TOKEN)
+    priority_field = "customfield_10112"
+    worktype_field = "customfield_10113"
+
+    issues = get_tickets_needing_any_suggestion(JIRA_URL, JIRA_EMAIL, JIRA_TOKEN)
+    if not issues:
+        logger.info("[Auto Apply] Todos los tickets ya tienen sugerencias IA — nada que hacer")
+        return
+
+    tickets = [_to_ticket_payload(i) for i in issues]
+
+    # Añadir tipo actual al payload (no está en _to_ticket_payload)
+    for t, issue in zip(tickets, issues):
+        t["current_type"] = (issue["fields"].get("issuetype") or {}).get("name", "Task")
+
+    logger.info("[Auto Apply] Procesando %d tickets...", len(tickets))
+
+    priority_results = suggest_priority_all(client, tickets)
+    worktype_results = suggest_worktype_all(client, tickets)
+
+    applied = 0
+    for t in tickets:
+        key = t["key"]
+        pri = priority_results.get(key)
+        wt  = worktype_results.get(key)
+
+        new_priority = pri["priority"] if pri else None
+        new_type     = wt["worktype"]  if wt  else None
+
+        try:
+            # Campos reales
+            if new_priority:
+                update_issue_priority(
+                    JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
+                    t["id"], PRIORITY_NAME_TO_ID.get(new_priority, "3"),
+                )
+            if new_type:
+                update_issue_type(JIRA_URL, JIRA_EMAIL, JIRA_TOKEN, t["id"], new_type)
+
+            # Campos IA
+            if new_priority:
+                set_suggested_priority(
+                    JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
+                    t["id"], priority_field,
+                    new_priority, pri.get("reasoning", ""),
+                )
+            if new_type:
+                set_suggested_worktype(
+                    JIRA_URL, JIRA_EMAIL, JIRA_TOKEN,
+                    t["id"], worktype_field,
+                    new_type, wt.get("reasoning", ""),
+                )
+
+            # Comentario de trazabilidad (solo si hubo cambio real)
+            priority_changed = new_priority and new_priority != t["current_priority"]
+            type_changed     = new_type     and new_type     != t["current_type"]
+            if priority_changed or type_changed:
+                add_auto_apply_comment(
+                    JIRA_URL, JIRA_EMAIL, JIRA_TOKEN, t["id"],
+                    t["current_priority"], new_priority or t["current_priority"],
+                    t["current_type"],    new_type     or t["current_type"],
+                )
+
+            applied += 1
+            logger.info("[Auto Apply] %s → prioridad: %s | tipología: %s", key, new_priority, new_type)
+        except Exception as exc:
+            logger.warning("[Auto Apply] Error en %s: %s", key, exc)
+
+    logger.info("[Auto Apply] %d/%d tickets procesados", applied, len(tickets))
+
+
 # Estrategias activas — comenta las que no quieras ejecutar en cada demostración
 ACTIVE_STRATEGIES = [
     # strategy_github_pages,
-    strategy_jira_field,
+    # strategy_jira_field,
+    strategy_auto_apply,
 ]
 
 # ── Entry point ────────────────────────────────────────────────────────────────

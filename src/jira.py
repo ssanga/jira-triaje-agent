@@ -16,12 +16,14 @@ PRIORITY_NAME_TO_ID = {
 
 _PAGE_SIZE = 100
 
-_JQL_ALL_OPEN        = "project = PT AND statusCategory != Done ORDER BY created DESC"
-_JQL_NEEDS_PRIORITY  = "project = PT AND statusCategory != Done AND cf[10112] is EMPTY ORDER BY created DESC"
-_JQL_NEEDS_WORKTYPE  = "project = PT AND statusCategory != Done AND cf[10113] is EMPTY ORDER BY created DESC"
+_JQL_ALL_OPEN          = "project = PT AND statusCategory != Done ORDER BY created DESC"
+_JQL_NEEDS_PRIORITY    = "project = PT AND statusCategory != Done AND cf[10112] is EMPTY ORDER BY created DESC"
+_JQL_NEEDS_WORKTYPE    = "project = PT AND statusCategory != Done AND cf[10113] is EMPTY ORDER BY created DESC"
+_JQL_NEEDS_ANY         = "project = PT AND statusCategory != Done AND (cf[10112] is EMPTY OR cf[10113] is EMPTY) ORDER BY created DESC"
 
-_FIELDS_FULL  = ["summary", "description", "priority", "status"]
-_FIELDS_BASIC = ["summary", "description", "priority"]
+_FIELDS_FULL      = ["summary", "description", "priority", "status"]
+_FIELDS_BASIC     = ["summary", "description", "priority"]
+_FIELDS_AUTO_APPLY = ["summary", "description", "priority", "issuetype"]
 
 
 def _fetch_issues(jira_url: str, email: str, token: str, jql: str, fields: list[str]) -> list[dict]:
@@ -59,6 +61,42 @@ def get_tickets_needing_priority(jira_url: str, email: str, token: str) -> list[
 def get_tickets_needing_worktype(jira_url: str, email: str, token: str) -> list[dict]:
     """Tickets sin sugerencia de tipología IA (campo customfield_10113 vacío)."""
     return _fetch_issues(jira_url, email, token, _JQL_NEEDS_WORKTYPE, _FIELDS_BASIC)
+
+
+def get_tickets_needing_any_suggestion(jira_url: str, email: str, token: str) -> list[dict]:
+    """Tickets sin al menos una sugerencia IA — usados por la estrategia auto-apply."""
+    return _fetch_issues(jira_url, email, token, _JQL_NEEDS_ANY, _FIELDS_AUTO_APPLY)
+
+
+def update_issue_type(jira_url: str, email: str, token: str, issue_id: str, type_name: str) -> None:
+    url = f"{jira_url}/rest/api/3/issue/{issue_id}"
+    resp = requests.put(url, json={"fields": {"issuetype": {"name": type_name}}}, auth=(email, token))
+    resp.raise_for_status()
+    logger.info("Tipo actualizado en issue %s → %s", issue_id, type_name)
+
+
+def add_auto_apply_comment(
+    jira_url: str, email: str, token: str, issue_id: str,
+    old_priority: str, new_priority: str,
+    old_type: str, new_type: str,
+) -> None:
+    fecha = date.today().isoformat()
+    lines = [f"[Agente de triaje IA] Cambios aplicados automáticamente el {fecha}:"]
+    if old_priority != new_priority:
+        lines.append(f"  • Prioridad: {old_priority} → {new_priority}")
+    if old_type != new_type:
+        lines.append(f"  • Tipología: {old_type} → {new_type}")
+    texto = "\n".join(lines)
+    url = f"{jira_url}/rest/api/3/issue/{issue_id}/comment"
+    payload = {
+        "body": {
+            "type": "doc", "version": 1,
+            "content": [{"type": "paragraph", "content": [{"type": "text", "text": texto}]}],
+        }
+    }
+    resp = requests.post(url, json=payload, auth=(email, token))
+    resp.raise_for_status()
+    logger.info("Comentario de trazabilidad añadido en issue %s", issue_id)
 
 
 def extract_description(description_field) -> str:
@@ -154,7 +192,7 @@ def reset_issue_types(project_key: str) -> None:
     logger.info("Reseteando tipo a Task en %d issues...", len(issues))
     for issue in issues:
         url = f"{jira_url}/rest/api/3/issue/{issue['id']}"
-        resp = requests.put(url, json={"fields": {"issuetype": {"name": "Task"}}}, auth=(email, token))
+        resp = requests.put(url, json={"fields": {"issuetype": {"name": "Task"}, "customfield_10113": None}}, auth=(email, token))
         resp.raise_for_status()
         logger.info("  %s → Task", issue["key"])
 

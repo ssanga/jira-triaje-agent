@@ -2,42 +2,69 @@
 
 Agente autónomo de triaje de incidencias Jira con GitHub Pages + GitHub Actions + GitHub Models.
 
-Analiza bugs abiertos en lote con `gpt-4o`, propone cambios de prioridad, y los comunica a través de **estrategias intercambiables** — actualmente dos implementadas, fácilmente extensibles.
+Analiza tickets abiertos en lote con `gpt-4o`, sugiere prioridad y tipología, y los comunica a través de **tres estrategias intercambiables** — desde revisión humana completa hasta aplicación automática sin intervención.
 
 ---
 
 ## Estrategias de salida
 
-El agente comparte un núcleo común de triaje (Jira → IA → lista de resultados) y puede ejecutar una o varias estrategias en paralelo. Para activar o desactivar una estrategia, edita `ACTIVE_STRATEGIES` en `main.py`.
+Cada estrategia es autónoma: obtiene sus propios tickets de Jira con el JQL más eficiente para su caso de uso. Para activar o desactivar una estrategia, edita `ACTIVE_STRATEGIES` en `main.py`.
+
+---
 
 ### Estrategia A — GitHub Pages (revisión humana)
 
 ```
-main.py → triage.json → GitHub Pages (index.html)
+main.py → obtiene todos los tickets abiertos → IA sugiere prioridad
     ↓
-Usuario revisa propuestas en la web → Confirmar / Descartar
+Escribe data/triage.json → commit automático a main
     ↓
-Botón "Enviar decisiones" → escribe decisions.json vía GitHub Contents API
+GitHub Pages sirve index.html
     ↓
-apply.yml detecta el push → src/apply.py actualiza Jira → commit
+Usuario revisa propuestas → Confirmar / Descartar (uno a uno o en bloque)
+    ↓
+"Enviar decisiones" → escribe decisions.json vía GitHub Contents API
+    ↓
+apply.yml detecta el push → src/apply.py actualiza prioridades en Jira → commit
 ```
 
-**Ventajas:** revisión ticket a ticket, trazabilidad completa, aprobación explícita antes de tocar Jira.  
+**Cuándo usarla:** cuando se requiera aprobación humana explícita antes de modificar Jira.  
 **Requisito:** el revisor necesita un GitHub Token (classic PAT, scope `repo`).
 
 ---
 
-### Estrategia B — Campo personalizado en Jira
+### Estrategia B — Campos IA en Jira (sugerencia visible)
 
 ```
-main.py → PUT /rest/api/3/issue/{id} (campo customfield_10112)
+main.py → obtiene tickets sin campo IA relleno (JQL: cf[10112] is EMPTY / cf[10113] is EMPTY)
     ↓
-Usuario ve "IA: Prioridad Sugerida" directamente en cada ticket de Jira
-→ Aprueba cambiando la prioridad real manualmente
+IA sugiere prioridad  → escribe "IA: Prioridad Sugerida"  (customfield_10112)
+IA sugiere tipología  → escribe "IA: Tipología Sugerida"  (customfield_10113)
+    ↓
+Usuario ve las sugerencias directamente en el ticket de Jira
+→ Aprueba aplicando el cambio manualmente
 ```
 
-**Ventajas:** sin web externa, sin tokens adicionales, visible para cualquier usuario con acceso a Jira.  
-**Requisito:** campo personalizado `IA: Prioridad Sugerida` añadido al proyecto PT (ya configurado).
+**Cuándo usarla:** cuando el equipo ya tiene acceso a Jira y se quiere sugerencia visible sin herramientas externas.  
+**Ventaja clave:** solo procesa tickets que aún no tienen el campo IA relleno — eficiente en proyectos grandes.
+
+---
+
+### Estrategia C — Auto Apply (totalmente autónoma)
+
+```
+main.py → obtiene tickets sin al menos una sugerencia IA
+    ↓
+IA sugiere prioridad Y tipología en batches
+    ↓
+Aplica Priority real en Jira      (PUT /rest/api/3/issue/{id})
+Aplica Issue Type real en Jira    (PUT /rest/api/3/issue/{id})
+Rellena campos IA                 (customfield_10112 y customfield_10113)
+Añade comentario de trazabilidad  (solo si hubo cambio real)
+```
+
+**Cuándo usarla:** modo producción — confianza total en la IA, sin revisión humana.  
+**Comentario en ticket:** `[Agente de triaje IA] Cambios aplicados automáticamente el YYYY-MM-DD: • Prioridad: Medium → High • Tipología: Task → Bug`
 
 ---
 
@@ -55,7 +82,22 @@ Ve a **Settings → Secrets and variables → Actions** y crea:
 
 El `GITHUB_TOKEN` para GitHub Models lo provee automáticamente GitHub Actions — no hace falta configurarlo.
 
-### 2. Habilitar GitHub Pages (estrategia A)
+### 2. Campos personalizados en Jira (estrategias B y C)
+
+| Campo | ID | Descripción |
+|-------|----|-------------|
+| `IA: Prioridad Sugerida` | `customfield_10112` | Prioridad propuesta por la IA con razonamiento |
+| `IA: Tipología Sugerida` | `customfield_10113` | Tipo de trabajo propuesto por la IA con razonamiento |
+
+Para crearlos en un Jira nuevo, ejecuta una sola vez:
+
+```bash
+python scripts/setup_jira_field.py
+```
+
+Luego actívalos en el proyecto: **Project settings → Fields → busca el campo → Add**.
+
+### 3. Habilitar GitHub Pages (estrategia A)
 
 Ve a **Settings → Pages**:
 
@@ -63,18 +105,6 @@ Ve a **Settings → Pages**:
 - **Branch:** `main` / `(root)`
 
 La URL de la web será: `https://<usuario>.github.io/<repo>/`
-
-### 3. Campo personalizado en Jira (estrategia B)
-
-El campo `IA: Prioridad Sugerida` (`customfield_10112`) debe estar añadido al proyecto PT.
-
-Para crearlo en un Jira nuevo ejecuta una sola vez:
-
-```bash
-python scripts/setup_jira_field.py
-```
-
-Luego actívalo en el proyecto: **Project settings → Fields → busca "IA: Prioridad Sugerida" → Add**.
 
 ### 4. Primer triaje manual
 
@@ -102,21 +132,34 @@ El usuario que revise los tickets necesita un **classic PAT** con scope `repo`:
 
 ## Añadir una nueva estrategia
 
-1. Crea una función en `main.py` con la firma `def strategy_nueva(results: list[dict]) -> None`
-2. Añádela a `ACTIVE_STRATEGIES`
+1. Implementa una función sin parámetros en `main.py`: `def strategy_nueva() -> None`
+2. Dentro, usa los helpers de `src/jira.py` para obtener tickets y los de `src/ai.py` para analizarlos
+3. Añádela a `ACTIVE_STRATEGIES`
 
-Cada resultado en `results` contiene:
+Funciones de obtención de tickets disponibles en `src/jira.py`:
 
-| Campo | Descripción |
-|-------|-------------|
-| `key` | Clave del ticket (ej. `PT-6`) |
-| `id` | ID interno de Jira |
-| `jira_url` | URL directa al ticket |
-| `summary` | Título del ticket |
-| `current_priority` | Prioridad actual |
-| `proposed_priority` | Prioridad propuesta por la IA |
-| `reasoning` | Razonamiento del agente (en español) |
-| `changed` | `true` si la prioridad propuesta difiere de la actual |
+| Función | JQL aplicado |
+|---------|-------------|
+| `get_all_open_tickets()` | Todos los tickets abiertos |
+| `get_tickets_needing_priority()` | `cf[10112] is EMPTY` |
+| `get_tickets_needing_worktype()` | `cf[10113] is EMPTY` |
+| `get_tickets_needing_any_suggestion()` | `cf[10112] is EMPTY OR cf[10113] is EMPTY` |
+
+Funciones de análisis IA disponibles en `src/ai.py`:
+
+| Función | Qué devuelve |
+|---------|-------------|
+| `suggest_priority_all(client, tickets)` | `{key: {priority, reasoning}}` |
+| `suggest_worktype_all(client, tickets)` | `{key: {worktype, reasoning}}` |
+
+---
+
+## Scripts de utilidad
+
+| Script | Uso |
+|--------|-----|
+| `python scripts/setup_jira_field.py` | Crea los campos personalizados en Jira (una sola vez) |
+| `python -m scripts.reset_priorities` | Resetea prioridades a Medium y limpia campos IA (útil para demos) |
 
 ---
 
@@ -135,13 +178,14 @@ python main.py
 ## Estructura del proyecto
 
 ```
-├── main.py                        # Orquestador: triaje + ejecución de estrategias
+├── main.py                        # Orquestador: estrategias A, B y C
 ├── src/
-│   ├── jira.py                    # Cliente Jira REST API (lectura, actualización, comentarios)
-│   ├── ai.py                      # Cliente GitHub Models — triaje en batches de 10
+│   ├── jira.py                    # Cliente Jira REST API (lectura, escritura, comentarios)
+│   ├── ai.py                      # Cliente GitHub Models — suggest_priority_all / suggest_worktype_all
 │   └── apply.py                   # Aplica decisiones aprobadas desde la web (estrategia A)
 ├── scripts/
-│   └── setup_jira_field.py        # Crea el campo personalizado en Jira (una sola vez)
+│   ├── setup_jira_field.py        # Crea campos personalizados en Jira (una sola vez)
+│   └── reset_priorities.py        # Resetea datos para demos
 ├── data/
 │   └── triage.json                # Resultado del triaje para GitHub Pages (estrategia A)
 ├── .github/workflows/
@@ -158,5 +202,5 @@ python main.py
 
 | Workflow | Trigger | Qué hace |
 |----------|---------|----------|
-| `main.yml` | Push a main / manual | Triaje completo: Jira → IA → ejecuta estrategias activas |
+| `main.yml` | Push a main / manual | Ejecuta las estrategias activas en `ACTIVE_STRATEGIES` |
 | `apply.yml` | Push de `decisions.json` | Aplica decisiones en Jira, borra decisions.json, commit (estrategia A) |
