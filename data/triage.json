@@ -32,7 +32,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema afecta la legibilidad de los archivos exportados, pero no impide el uso de la funcionalidad principal ni genera un impacto crítico inmediato.",
+    "reasoning": "El problema afecta la legibilidad de los archivos exportados, pero no bloquea la funcionalidad principal del sistema y tiene alternativas para mitigar el impacto.",
     "changed": true
   },
   {
@@ -44,7 +44,7 @@
     "current_priority_id": "5",
     "proposed_priority": "Lowest",
     "proposed_priority_id": "5",
-    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema, además de tener un impacto limitado a dispositivos móviles.",
+    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema ni la capacidad de los usuarios para realizar tareas.",
     "changed": false
   },
   {
@@ -56,7 +56,7 @@
     "current_priority_id": "4",
     "proposed_priority": "Low",
     "proposed_priority_id": "4",
-    "reasoning": "El problema tiene un impacto bajo, ya que existen alternativas funcionales en otros navegadores y no afecta flujos críticos.",
+    "reasoning": "El problema afecta solo a un navegador específico y tiene una solución alternativa clara, por lo que el impacto es bajo.",
     "changed": false
   },
   {
@@ -68,7 +68,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "Aunque no bloquea el registro, la falta de notificaciones genera confusión y afecta la experiencia de usuario, además de incrementar la carga de soporte.",
+    "reasoning": "Aunque no bloquea el registro, la falta de notificaciones por email afecta la experiencia de usuario y genera una carga adicional para el soporte.",
     "changed": true
   },
   {
@@ -80,7 +80,7 @@
     "current_priority_id": "3",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema afecta a una funcionalidad secundaria y no bloquea el uso principal del sistema, pero genera fricción para usuarios que necesitan cargar archivos grandes.",
+    "reasoning": "El problema afecta a una funcionalidad no crítica y tiene un impacto limitado, aunque genera fricción para los usuarios que necesitan cargar archivos grandes.",
     "changed": false
   },
   {
@@ -104,7 +104,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema afecta a una funcionalidad específica (reportes históricos) y tiene un impacto limitado en el trabajo diario, aunque es relevante para la dirección.",
+    "reasoning": "El problema afecta a una funcionalidad de análisis histórico que no es crítica para el trabajo diario, aunque tiene cierta urgencia debido a necesidades específicas del equipo de dirección.",
     "changed": true
   },
   {
@@ -116,7 +116,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "La falta de sincronización con el CRM afecta la gestión comercial y puede impactar en la generación de ingresos, acumulando deuda de datos con el tiempo.",
+    "reasoning": "La falta de sincronización con el CRM afecta la gestión de oportunidades comerciales, lo que puede impactar en los ingresos si no se resuelve rápidamente.",
     "changed": false
   },
   {
@@ -128,7 +128,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El problema afecta a un grupo específico de usuarios (managers) y bloquea tareas importantes, pero no impacta a todos los usuarios ni detiene completamente el sistema.",
+    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas importantes, pero no impacta a todos los usuarios ni detiene completamente el negocio.",
     "changed": false
   },
   {
@@ -152,7 +152,7 @@
     "current_priority_id": "1",
     "proposed_priority": "Highest",
     "proposed_priority_id": "1",
-    "reasoning": "El sistema está completamente inaccesible para todos los usuarios, lo que genera una pérdida crítica de negocio y requiere atención inmediata.",
+    "reasoning": "El sistema está completamente inaccesible para todos los usuarios, lo que representa un impacto crítico y requiere atención inmediata para restaurar la operatividad.",
     "changed": false
   }
 ]
