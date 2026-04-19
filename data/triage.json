@@ -24,18 +24,6 @@
     "changed": false
   },
   {
-    "key": "PT-11",
-    "jira_url": "https://ssanga.atlassian.net/browse/PT-11",
-    "id": "10498",
-    "summary": "El módulo de exportación genera ficheros CSV corruptos al incluir caracteres especiales",
-    "current_priority": "High",
-    "current_priority_id": "2",
-    "proposed_priority": "Medium",
-    "proposed_priority_id": "3",
-    "reasoning": "El problema de caracteres especiales en la exportación a CSV afecta la usabilidad, pero no bloquea la funcionalidad principal ni genera pérdidas económicas.",
-    "changed": true
-  },
-  {
     "key": "PT-10",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-10",
     "id": "10426",
@@ -60,18 +48,6 @@
     "changed": false
   },
   {
-    "key": "PT-8",
-    "jira_url": "https://ssanga.atlassian.net/browse/PT-8",
-    "id": "10424",
-    "summary": "Notificaciones por email no se envían a usuarios recién registrados",
-    "current_priority": "High",
-    "current_priority_id": "2",
-    "proposed_priority": "Medium",
-    "proposed_priority_id": "3",
-    "reasoning": "La falta de notificaciones por email afecta la experiencia de onboarding y genera confusión, pero no bloquea el registro ni el uso del sistema.",
-    "changed": true
-  },
-  {
     "key": "PT-7",
     "jira_url": "https://ssanga.atlassian.net/browse/PT-7",
     "id": "10423",
@@ -94,18 +70,6 @@
     "proposed_priority_id": "2",
     "reasoning": "El cálculo incorrecto de descuentos genera un perjuicio económico directo para los usuarios, afectando la confianza y la reputación de la empresa.",
     "changed": false
-  },
-  {
-    "key": "PT-5",
-    "jira_url": "https://ssanga.atlassian.net/browse/PT-5",
-    "id": "10421",
-    "summary": "Timeout en consultas de reporting para rangos de fechas superiores a 3 meses",
-    "current_priority": "High",
-    "current_priority_id": "2",
-    "proposed_priority": "Medium",
-    "proposed_priority_id": "3",
-    "reasoning": "El timeout en consultas de reporting afecta a análisis históricos y genera inconvenientes para la dirección, pero no bloquea el trabajo diario ni flujos críticos.",
-    "changed": true
   },
   {
     "key": "PT-4",
