@@ -32,7 +32,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El problema afecta la legibilidad de los archivos exportados, pero no impide el uso de la funcionalidad principal del sistema.",
+    "reasoning": "El problema afecta la legibilidad de los archivos exportados, pero no impide la funcionalidad principal del sistema ni genera un impacto crítico inmediato.",
     "changed": true
   },
   {
@@ -68,7 +68,7 @@
     "current_priority_id": "2",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "Aunque no bloquea el registro, la falta de notificaciones afecta la experiencia de usuario y genera confusión, lo que puede impactar la percepción del servicio.",
+    "reasoning": "Aunque no bloquea el registro, la falta de notificaciones genera confusión y afecta la experiencia de usuario, lo que puede impactar la percepción del servicio.",
     "changed": true
   },
   {
@@ -80,7 +80,7 @@
     "current_priority_id": "3",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El error afecta a una funcionalidad secundaria y no bloquea el uso general del sistema, pero genera fricción para usuarios que necesitan cargar archivos grandes.",
+    "reasoning": "El error afecta a una funcionalidad secundaria y no bloquea flujos críticos, pero genera fricción para los usuarios que necesitan subir archivos grandes.",
     "changed": false
   },
   {
@@ -116,7 +116,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "La falta de sincronización con el CRM afecta la gestión de oportunidades y puede tener un impacto significativo en las operaciones comerciales si no se resuelve pronto.",
+    "reasoning": "La falta de sincronización con el CRM afecta la gestión comercial y puede impactar en la generación de ingresos si no se resuelve rápidamente.",
     "changed": false
   },
   {
@@ -128,7 +128,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El problema afecta a un grupo específico de usuarios (managers) y bloquea tareas importantes, pero no impacta a todos los usuarios ni detiene completamente el negocio.",
+    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas importantes, pero no impacta a todos los usuarios ni detiene completamente el negocio.",
     "changed": false
   },
   {
@@ -152,7 +152,7 @@
     "current_priority_id": "1",
     "proposed_priority": "Highest",
     "proposed_priority_id": "1",
-    "reasoning": "El sistema está completamente inoperativo para todos los usuarios, lo que genera una pérdida total de negocio y requiere atención inmediata.",
+    "reasoning": "El sistema está completamente inaccesible para todos los usuarios, lo que genera una pérdida total de negocio y requiere atención inmediata.",
     "changed": false
   }
 ]
