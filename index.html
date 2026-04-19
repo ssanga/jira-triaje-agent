@@ -88,7 +88,7 @@
     for (const t of changedTickets) {
       html += `
         <div class="card changed" id="card-${t.key}">
-          <div class="card-key">${t.key}</div>
+          <div class="card-key"><a href="${t.jira_url}" target="_blank" style="color:inherit;text-decoration:none;">${t.key} ↗</a></div>
           <div class="card-summary">${t.summary}</div>
           <div class="priority-row">
             ${priorityBadge(t.current_priority, "current")}

@@ -64,6 +64,7 @@ def main():
 
         results.append({
             "key": key,
+            "jira_url": f"{JIRA_URL}/browse/{key}",
             "id": meta[key]["id"],
             "summary": t["summary"],
             "current_priority": t["current_priority"],
