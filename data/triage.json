@@ -8,7 +8,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El cierre inesperado de sesión afecta la experiencia de usuario y genera fricción, pero no bloquea flujos críticos ni causa pérdidas económicas directas.",
+    "reasoning": "El cierre inesperado de sesión afecta la experiencia del usuario y puede interrumpir flujos de trabajo, pero no bloquea completamente el uso del sistema.",
     "changed": false
   },
   {
@@ -20,7 +20,19 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El error en el cálculo de impuestos puede tener implicaciones legales y financieras significativas, especialmente al tratarse de informes anuales.",
+    "reasoning": "El error en el cálculo de impuestos puede generar problemas legales y financieros significativos, especialmente al tratarse de informes anuales.",
+    "changed": false
+  },
+  {
+    "key": "PT-11",
+    "jira_url": "https://ssanga.atlassian.net/browse/PT-11",
+    "id": "10498",
+    "summary": "El módulo de exportación genera ficheros CSV corruptos al incluir caracteres especiales",
+    "current_priority": "Medium",
+    "current_priority_id": "3",
+    "proposed_priority": "Medium",
+    "proposed_priority_id": "3",
+    "reasoning": "El problema de caracteres especiales en la exportación a CSV afecta la legibilidad, pero no bloquea la funcionalidad principal del sistema.",
     "changed": false
   },
   {
@@ -32,7 +44,7 @@
     "current_priority_id": "5",
     "proposed_priority": "Lowest",
     "proposed_priority_id": "5",
-    "reasoning": "El problema es puramente estético y no afecta la funcionalidad del sistema, además de tener un impacto limitado a dispositivos móviles.",
+    "reasoning": "El problema de diseño en dispositivos móviles es puramente estético y no afecta la funcionalidad del sistema.",
     "changed": false
   },
   {
@@ -44,7 +56,19 @@
     "current_priority_id": "4",
     "proposed_priority": "Low",
     "proposed_priority_id": "4",
-    "reasoning": "El botón de exportación a PDF no funciona en un navegador específico, pero existen alternativas disponibles y no afecta flujos críticos.",
+    "reasoning": "El botón de exportación a PDF no funciona en un navegador específico, pero hay alternativas disponibles y no afecta flujos críticos.",
+    "changed": false
+  },
+  {
+    "key": "PT-8",
+    "jira_url": "https://ssanga.atlassian.net/browse/PT-8",
+    "id": "10424",
+    "summary": "Notificaciones por email no se envían a usuarios recién registrados",
+    "current_priority": "Medium",
+    "current_priority_id": "3",
+    "proposed_priority": "Medium",
+    "proposed_priority_id": "3",
+    "reasoning": "La falta de notificaciones por email afecta la experiencia de onboarding y genera confusión, pero no bloquea el registro ni el uso del sistema.",
     "changed": false
   },
   {
@@ -56,7 +80,7 @@
     "current_priority_id": "3",
     "proposed_priority": "Medium",
     "proposed_priority_id": "3",
-    "reasoning": "El error al subir archivos grandes afecta a un subconjunto de usuarios y genera fricción, pero no bloquea flujos críticos ni afecta a la mayoría de los usuarios.",
+    "reasoning": "El error al subir archivos grandes afecta a un subconjunto de usuarios y genera fricción, pero no bloquea flujos críticos.",
     "changed": false
   },
   {
@@ -68,7 +92,19 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El cálculo incorrecto de descuentos genera un perjuicio económico directo para los usuarios, afectando la confianza y la reputación de la empresa.",
+    "reasoning": "El cálculo incorrecto de descuentos impacta directamente en la confianza del cliente y puede generar pérdidas económicas, lo que lo hace prioritario.",
+    "changed": false
+  },
+  {
+    "key": "PT-5",
+    "jira_url": "https://ssanga.atlassian.net/browse/PT-5",
+    "id": "10421",
+    "summary": "Timeout en consultas de reporting para rangos de fechas superiores a 3 meses",
+    "current_priority": "High",
+    "current_priority_id": "2",
+    "proposed_priority": "High",
+    "proposed_priority_id": "2",
+    "reasoning": "El timeout en consultas de reporting afecta la generación de informes trimestrales necesarios para la dirección, lo que tiene un impacto significativo en la toma de decisiones.",
     "changed": false
   },
   {
@@ -78,10 +114,10 @@
     "summary": "Datos de clientes no se sincronizan con el CRM externo desde ayer",
     "current_priority": "High",
     "current_priority_id": "2",
-    "proposed_priority": "High",
-    "proposed_priority_id": "2",
-    "reasoning": "La falta de sincronización con el CRM afecta la gestión comercial y acumula deuda de datos, lo que puede impactar en la operación del negocio si no se resuelve pronto.",
-    "changed": false
+    "proposed_priority": "Highest",
+    "proposed_priority_id": "1",
+    "reasoning": "La falta de sincronización con el CRM afecta directamente la gestión de oportunidades comerciales, lo que puede tener un impacto crítico en el negocio si no se resuelve rápidamente.",
+    "changed": true
   },
   {
     "key": "PT-3",
@@ -92,7 +128,7 @@
     "current_priority_id": "2",
     "proposed_priority": "High",
     "proposed_priority_id": "2",
-    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas críticas, pero no impacta a todos los usuarios ni detiene completamente el sistema.",
+    "reasoning": "El problema afecta a un grupo específico de usuarios y bloquea tareas críticas, pero no impacta a todos los usuarios ni detiene completamente el negocio.",
     "changed": false
   },
   {
@@ -116,7 +152,7 @@
     "current_priority_id": "1",
     "proposed_priority": "Highest",
     "proposed_priority_id": "1",
-    "reasoning": "El sistema está completamente inoperativo para todos los usuarios, lo que genera una pérdida directa de negocio y requiere atención inmediata.",
+    "reasoning": "El sistema está completamente inaccesible para todos los usuarios, lo que genera una interrupción total del negocio y requiere atención inmediata.",
     "changed": false
   }
 ]
