@@ -151,11 +151,9 @@
       const content = btoa(JSON.stringify(decisions, null, 2));
       const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/decisions.json`;
 
-      // Obtener SHA si el fichero ya existe (necesario para actualizarlo)
+      // Obtener SHA si el fichero ya existe — sin auth porque el repo es público
       let sha;
-      const existing = await fetch(apiUrl, {
-        headers: { "Authorization": `token ${pat}`, "Accept": "application/vnd.github+json" }
-      });
+      const existing = await fetch(apiUrl, { headers: { "Accept": "application/vnd.github+json" } });
       if (existing.ok) {
         const data = await existing.json();
         sha = data.sha;
